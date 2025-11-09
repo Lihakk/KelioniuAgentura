@@ -49,7 +49,7 @@ export const TripDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Maršrutas ir Aprašymas</h2>
         <p className="text-gray-700 leading-relaxed mb-6">{trip.route}</p>
         <div className="text-center">
-            <Link to={`/reservation/${tripId}`} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-700 transition-colors text-lg">
+            <Link to={`/reservation`} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-700 transition-colors text-lg">
                 Rezervuoti Dabar
             </Link>
         </div>
