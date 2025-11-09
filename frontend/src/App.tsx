@@ -13,8 +13,8 @@ import { LoginPage } from './pages/LoginPage';
 // Admin Page Imports
 import { AdminPage } from './pages/AdminPage';
 import { ViewReservationsPage } from './pages/admin/ViewReservationsPage';
-import { AddTripPage } from './pages/admin/AddTripPage';
-import { ModifyTripsPage } from './pages/admin/ModifyTripsPage';
+import { AddTripPage } from './pages/admin/trip/AddTripPage';
+import { ModifyTripsPage } from './pages/admin/trip/ModifyTripsPage';
 import { SignupPage } from './pages/SignupPage';
 // Admin Routes Imports
 import { RoutesDashboardPage } from './pages/admin/routes/RoutesDashboardPage';
@@ -22,6 +22,8 @@ import { EstimateTimePage } from './pages/admin/routes/EstimateTimePage';
 import { RoutePreviewPage } from './pages/admin/routes/RoutePreviewPage';
 import { RouteEditPage } from './pages/admin/routes/RouteEditPage';
 import { RouteCreatePage } from './pages/admin/routes/RouteCreatePage'; // Import the new page
+import { TripDashboardPage } from './pages/admin/trip/TripDashboardPage';
+import { TripListPage } from './pages/admin/trip/TripListPage';
 
 function App() {
   return (
@@ -39,14 +41,18 @@ function App() {
         {/* Nested Admin Routes */}
         <Route path="/admin" element={<AdminPage />}>
           <Route path="reservations" element={<ViewReservationsPage />} />
-          <Route path="add-trip" element={<AddTripPage />} />
-          <Route path="modify-trips" element={<ModifyTripsPage />} />
-          
+
           <Route path="routes" element={<RoutesDashboardPage />} />
           <Route path="routes/create" element={<RouteCreatePage />} /> {/* Add the new route */}
           <Route path="routes/preview" element={<RoutePreviewPage />} />
           <Route path="routes/edit" element={<RouteEditPage />} />
           <Route path="routes/estimate-time" element={<EstimateTimePage />} />
+
+          <Route path="trip" element={<TripDashboardPage/>} ></Route>
+          <Route path="trip/create" element={<AddTripPage />} />
+          <Route path="trip/edit" element={<ModifyTripsPage />} />
+          <Route path="trip/list" element={<TripListPage/>} />
+          
         </Route>
       </Routes>
     </Router>

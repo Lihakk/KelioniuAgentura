@@ -7,8 +7,8 @@ const AdminDashboard: React.FC = () => {
       <Link to="reservations" className="bg-blue-500 text-white p-6 rounded-lg shadow-lg hover:bg-blue-600 transition-colors flex flex-col items-center justify-center text-center">
         <h3 className="text-xl font-bold">Peržiūrėti Rezervacijas</h3>
       </Link>
-      <Link to="add-trip" className="bg-green-500 text-white p-6 rounded-lg shadow-lg hover:bg-green-600 transition-colors flex flex-col items-center justify-center text-center">
-        <h3 className="text-xl font-bold">Pridėti Kelionę</h3>
+      <Link to="trip" className="bg-green-500 text-white p-6 rounded-lg shadow-lg hover:bg-green-600 transition-colors flex flex-col items-center justify-center text-center">
+        <h3 className="text-xl font-bold">Kelionių Valdymas</h3>
       </Link>
       <Link to="modify-trips" className="bg-yellow-500 text-white p-6 rounded-lg shadow-lg hover:bg-yellow-600 transition-colors flex flex-col items-center justify-center text-center">
         <h3 className="text-xl font-bold">Redaguoti Keliones</h3>
