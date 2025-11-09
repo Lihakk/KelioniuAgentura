@@ -16,7 +16,7 @@ const initialReservations: Reservation[] = [
     tripName: "Kelionė į Graikiją",
     date: "2025-06-15",
     people: 2,
-    imageUrl: "https://images.unsplash.com/photo-1580579628597-4229342c5c99",
+    imageUrl: "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
     isPaid: false,
   },
   {
@@ -24,7 +24,7 @@ const initialReservations: Reservation[] = [
     tripName: "Savaitgalis Paryžiuje",
     date: "2025-07-03",
     people: 4,
-    imageUrl: "https://images.unsplash.com/photo-1502602898657-3e91760c0337",
+    imageUrl: "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
     isPaid: true,
   },
 ];
