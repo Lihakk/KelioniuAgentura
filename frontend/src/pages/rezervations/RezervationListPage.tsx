@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 type Reservation = {
   id: number;
@@ -31,30 +31,6 @@ const initialReservations: Reservation[] = [
 
 export const RezervationListPage: React.FC = () => {
   const [reservations, setReservations] = useState(initialReservations);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedReservationId, setSelectedReservationId] = useState<
-    number | null
-  >(null);
-  const navigate = useNavigate();
-
-  const confirmCancel = (id: number) => {
-    setSelectedReservationId(id);
-    setModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    if (selectedReservationId !== null) {
-      setReservations((prev) =>
-        prev.filter((r) => r.id !== selectedReservationId)
-      );
-    }
-    setModalOpen(false);
-    setSelectedReservationId(null);
-  };
-
-  const handlePayment = (id: number) => {
-    navigate(`/payment/${id}`);
-  };
 
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
@@ -77,11 +53,11 @@ export const RezervationListPage: React.FC = () => {
               />
               <div className="p-6 flex flex-col gap-3">
                 <h2 className="font-bold text-xl">{reservation.tripName}</h2>
-                <p className="text-gray-600">
+                <p>
                   <span className="font-semibold">Data:</span>{" "}
                   {reservation.date}
                 </p>
-                <p className="text-gray-600">
+                <p>
                   <span className="font-semibold">Keliautojų skaičius:</span>{" "}
                   {reservation.people}
                 </p>
@@ -92,57 +68,17 @@ export const RezervationListPage: React.FC = () => {
                 >
                   {reservation.isPaid ? "Apmokėta" : "Rezervuota"}
                 </p>
-                <div className="flex justify-between items-center mt-4">
-                  <Link
-                    to={`/trip/${reservation.id}`}
-                    className="text-blue-600 font-semibold hover:underline"
-                  >
-                    Peržiūrėti kelionę
-                  </Link>
-                  <div className="flex gap-2">
-                    {!reservation.isPaid && (
-                      <button
-                        onClick={() => handlePayment(reservation.id)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                      >
-                        Sumokėti
-                      </button>
-                    )}
-                    <button
-                      onClick={() => confirmCancel(reservation.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-                    >
-                      Atšaukti
-                    </button>
-                  </div>
-                </div>
+
+                {/* Button to go to the detail page */}
+                <Link
+                  to={`/rezervation/${reservation.id}`}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
+                >
+                  Peržiūrėti
+                </Link>
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Confirmation Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Patvirtinimas</h2>
-            <p className="mb-6">Ar tikrai norite atšaukti šią rezervaciją?</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setModalOpen(false)}
-                className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
-              >
-                Atšaukti
-              </button>
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
-              >
-                Patvirtinti
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

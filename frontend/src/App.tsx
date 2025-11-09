@@ -25,6 +25,10 @@ import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage"; // Impor
 import { TripDashboardPage } from "./pages/admin/trip/TripDashboardPage";
 import { TripListPage } from "./pages/admin/trip/TripListPage";
 import { RezervationListPage } from "./pages/rezervations/RezervationListPage";
+import { RezervationDetailPage } from "./pages/rezervations/RezervationDetailPage";
+import { RezervationEditPage } from "./pages/rezervations/ReservationEditPage";
+import { PaymentPage } from "./pages/rezervations/PaymentPage";
+import { ReservationCreationPage } from "./pages/rezervations/ReservationCreationPage";
 
 function App() {
   return (
@@ -55,6 +59,13 @@ function App() {
         </Route>
 
         <Route path="/reservation" element={<RezervationListPage />}></Route>
+        <Route path="/rezervation/:id" element={<RezervationDetailPage />} />
+        <Route path="/rezervation/:id/edit" element={<RezervationEditPage />} />
+        <Route path="/payment/:id" element={<PaymentPage />} />
+        <Route
+          path="/rezervation/create"
+          element={<ReservationCreationPage />}
+        />
       </Routes>
     </Router>
   );
