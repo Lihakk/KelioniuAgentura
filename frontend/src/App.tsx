@@ -15,7 +15,7 @@ import { AdminPage } from './pages/AdminPage';
 import { ViewReservationsPage } from './pages/admin/ViewReservationsPage';
 import { AddTripPage } from './pages/admin/AddTripPage';
 import { ModifyTripsPage } from './pages/admin/ModifyTripsPage';
-
+import { SignupPage } from './pages/SignupPage';
 // Admin Routes Imports
 import { RoutesDashboardPage } from './pages/admin/routes/RoutesDashboardPage';
 import { EstimateTimePage } from './pages/admin/routes/EstimateTimePage';
@@ -35,7 +35,7 @@ function App() {
         <Route path="/reservation/:tripId" element={<ReservationPage />} />
         <Route path="/checkout" element={<StripeCheckoutPage />} />
         <Route path="/login" element={<LoginPage />} />
-
+        <Route path="/signup" element={<SignupPage />} />
         {/* Nested Admin Routes */}
         <Route path="/admin" element={<AdminPage />}>
           <Route path="reservations" element={<ViewReservationsPage />} />

@@ -13,7 +13,6 @@ const AdminDashboard: React.FC = () => {
       <Link to="modify-trips" className="bg-yellow-500 text-white p-6 rounded-lg shadow-lg hover:bg-yellow-600 transition-colors flex flex-col items-center justify-center text-center">
         <h3 className="text-xl font-bold">Redaguoti Keliones</h3>
       </Link>
-      {/* Updated this link */}
       <Link to="routes" className="bg-purple-500 text-white p-6 rounded-lg shadow-lg hover:bg-purple-600 transition-colors flex flex-col items-center justify-center text-center">
         <h3 className="text-xl font-bold">Maršrutų Valdymas</h3>
       </Link>
@@ -23,7 +22,7 @@ const AdminDashboard: React.FC = () => {
 
 export const AdminPage: React.FC = () => {
   const location = useLocation();
-  // Show dashboard only on the main /admin route
+
   const isDashboard = location.pathname === '/admin';
 
   return (
@@ -31,7 +30,7 @@ export const AdminPage: React.FC = () => {
       <h1 className="text-4xl font-extrabold mb-8">Administratoriaus Panelė</h1>
       {isDashboard && <AdminDashboard />}
       <div className="mt-4">
-        <Outlet /> {/* Renders child routes */}
+        <Outlet /> {}
       </div>
     </div>
   );

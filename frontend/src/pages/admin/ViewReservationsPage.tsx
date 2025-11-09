@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Sample data - in a real app, this would come from your backend
+// Sample data
 const reservations = [
   { id: 'res1', trip: 'Kelionė į Graikiją', customer: 'Jonas Jonaitis', email: 'jonas@example.com' },
   { id: 'res2', trip: 'Savaitgalis Paryžiuje', customer: 'Petras Petraitis', email: 'petras@example.com' },

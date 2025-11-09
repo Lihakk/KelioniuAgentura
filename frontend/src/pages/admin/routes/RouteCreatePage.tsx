@@ -1,4 +1,5 @@
 import React from 'react';
+import BackButton from '../../../components/BackButton';
 
 export const RouteCreatePage: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
@@ -8,7 +9,9 @@ export const RouteCreatePage: React.FC = () => {
   };
 
   return (
+
     <div className="p-6 bg-white shadow rounded-lg">
+      <BackButton />
       <h2 className="text-2xl font-bold mb-6">Sukurti Naują Maršrutą</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

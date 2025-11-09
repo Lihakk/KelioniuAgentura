@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import BackButton from '../../../components/BackButton';
 
 export const RoutesDashboardPage: React.FC = () => {
   return (
     <div className="p-6 bg-white shadow rounded-lg">
       <h2 className="text-2xl font-bold mb-4">Maršrutų Valdymas</h2>
+      <BackButton />
       {/* Updated to a 4-column grid for better layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Link to="create" className="bg-green-500 text-white p-6 rounded-lg hover:bg-green-600 transition-colors text-center font-semibold flex items-center justify-center">

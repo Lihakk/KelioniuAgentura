@@ -3,33 +3,17 @@ import { Link } from 'react-router-dom';
 
 const featuredTrips = [
   {
-    id: 'maldives',
-    destination: 'Maldyvų Rojus',
-    price: 'nuo €1,200',
-    imageUrl: 'https://images.unsplash.com/photo-1540202404-de3a40417b35',
-  },
-  {
-    id: 'alps',
-    destination: 'Alpių Nuotykis',
-    price: 'nuo €850',
-    imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4',
-  },
-  {
-    id: 'rome',
-    destination: 'Senovės Roma',
-    price: 'nuo €600',
-    imageUrl: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5',
-  },
+   id: 'greece', destination: 'Kelionė į Graikiją', imageUrl: 'https://images.unsplash.com/photo-1580579628597-4229342c5c99' },
+  { id: 'paris', destination: 'Savaitgalis Paryžiuje', imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760c0337' },
 ];
 
-const TripCard: React.FC<typeof featuredTrips[0]> = ({ id, destination, price, imageUrl }) => {
+const TripCard: React.FC<typeof featuredTrips[0]> = ({ id, destination, imageUrl }) => {
   return (
     <Link to={`/trip/${id}`} className="block group">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
         <img src={imageUrl} alt={destination} className="w-full h-56 object-cover" />
         <div className="p-4">
           <h3 className="text-xl font-bold text-gray-800">{destination}</h3>
-          <p className="text-md text-gray-600 mt-1">{price}</p>
         </div>
       </div>
     </Link>
