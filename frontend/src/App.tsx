@@ -15,13 +15,20 @@ import { AdminPage } from './pages/AdminPage';
 import { ViewReservationsPage } from './pages/admin/ViewReservationsPage';
 import { AddTripPage } from './pages/admin/AddTripPage';
 import { ModifyTripsPage } from './pages/admin/ModifyTripsPage';
-import { EstimateTimePage } from './pages/admin/EstimateTimePage';
+
+// Admin Routes Imports
+import { RoutesDashboardPage } from './pages/admin/routes/RoutesDashboardPage';
+import { EstimateTimePage } from './pages/admin/routes/EstimateTimePage';
+import { RoutePreviewPage } from './pages/admin/routes/RoutePreviewPage';
+import { RouteEditPage } from './pages/admin/routes/RouteEditPage';
+import { RouteCreatePage } from './pages/admin/routes/RouteCreatePage'; // Import the new page
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        {/* Main Site Routes */}
         <Route path="/" element={<MainPage />} />
         <Route path="/trips" element={<TripsPage />} />
         <Route path="/trip/:tripId" element={<TripDetailPage />} />
@@ -34,7 +41,12 @@ function App() {
           <Route path="reservations" element={<ViewReservationsPage />} />
           <Route path="add-trip" element={<AddTripPage />} />
           <Route path="modify-trips" element={<ModifyTripsPage />} />
-          <Route path="estimate-time" element={<EstimateTimePage />} />
+          
+          <Route path="routes" element={<RoutesDashboardPage />} />
+          <Route path="routes/create" element={<RouteCreatePage />} /> {/* Add the new route */}
+          <Route path="routes/preview" element={<RoutePreviewPage />} />
+          <Route path="routes/edit" element={<RouteEditPage />} />
+          <Route path="routes/estimate-time" element={<EstimateTimePage />} />
         </Route>
       </Routes>
     </Router>
