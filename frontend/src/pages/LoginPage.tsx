@@ -1,40 +1,42 @@
-// src/pages/LoginPage.tsx (append footer and optional BackButton at top)
+// src/pages/LoginPage.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import BackButton from '../components/BackButton';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: auth then navigate
+    const form = e.target as HTMLFormElement;
+    const username = (form.elements.namedItem('username') as HTMLInputElement).value;
+    if (username.trim().toLowerCase() === 'admin') {
+      login('admin');
+      navigate('/admin', { replace: true });
+    } else {
+      login('user');
+      navigate('/', { replace: true });
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Prisijungimas</h2>
-          <BackButton />
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-2xl font-bold mb-6">Prisijungimas</h2>
+        <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Vartotojo vardas</label>
-            <input type="text" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <input name="username" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Slaptažodis</label>
-            <input type="password" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <input name="password" type="password" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
           </div>
-          <button type="submit" className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-            Prisijungti
-          </button>
+          <button type="submit" className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">Prisijungti</button>
         </form>
-
         <div className="mt-6 text-center text-sm text-gray-600">
-          Neturite paskyros?{' '}
-          <Link to="/signup" className="text-blue-600 hover:underline">
-            Registruokitės
-          </Link>
+          Neturite paskyros? <span className="text-blue-600">Registruotis puslapyje</span>
         </div>
       </div>
     </div>

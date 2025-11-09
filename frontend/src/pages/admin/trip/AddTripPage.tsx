@@ -1,8 +1,10 @@
 import React from 'react';
+import BackButton from '../../../components/BackButton';
 
 export const AddTripPage: React.FC = () => {
   return (
     <div className="p-6">
+      <BackButton/>
       <h2 className="text-2xl font-bold mb-4">Pridėti Naują Kelionę</h2>
       <form className="bg-white shadow rounded-lg p-6 space-y-4">
         <div>
