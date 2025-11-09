@@ -1,10 +1,14 @@
 // src/pages/SignupPage.tsx
-import React from 'react';
-import BackButton from '../components/BackButton';
+import React from "react";
+import BackButton from "../components/BackButton";
+import { useNavigate } from "react-router-dom";
 
 export const SignupPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    navigate("/");
     // TODO: send to backend
   };
 
@@ -17,22 +21,65 @@ export const SignupPage: React.FC = () => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Vardas</label>
-            <input id="name" type="text" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Vardas
+            </label>
+            <input
+              id="name"
+              type="text"
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">El. paštas</label>
-            <input id="email" type="email" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              El. paštas
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Slaptažodis</label>
-            <input id="password" type="password" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Slaptažodis
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            />
           </div>
           <div>
-            <label htmlFor="confirm" className="block text-sm font-medium text-gray-700">Pakartokite slaptažodį</label>
-            <input id="confirm" type="password" required className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2" />
+            <label
+              htmlFor="confirm"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Pakartokite slaptažodį
+            </label>
+            <input
+              id="confirm"
+              type="password"
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            />
           </div>
-          <button type="submit" className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+          <button
+            type="submit"
+            className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
             Registruotis
           </button>
         </form>
