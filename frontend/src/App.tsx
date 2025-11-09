@@ -40,7 +40,7 @@ function App() {
         <Route path="/trips" element={<TripsPage />} />
         <Route path="/trip/:tripId" element={<TripDetailPage />} />
         <Route path="/reservation/:tripId" element={<ReservationPage />} />
-        <Route path="/checkout" element={<StripeCheckoutPage />} />
+        <Route path="/payment/:tripId" element={<StripeCheckoutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         {/* Nested Admin Routes */}

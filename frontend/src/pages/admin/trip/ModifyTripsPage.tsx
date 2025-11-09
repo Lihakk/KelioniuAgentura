@@ -1,13 +1,15 @@
 import React from 'react';
+import BackButton from '../../../components/BackButton';
 
 const trips = [
-  { id: 'greece', destination: 'Kelionė į Graikiją' },
-  { id: 'paris', destination: 'Savaitgalis Paryžiuje' },
+  { id: '1', destination: 'Kelionė į Graikiją' },
+  { id: '2', destination: 'Savaitgalis Paryžiuje' },
 ];
 
 export const ModifyTripsPage: React.FC = () => {
   return (
     <div className="p-6">
+      <BackButton/>
       <h2 className="text-2xl font-bold mb-4">Redaguoti Keliones</h2>
       <div className="bg-white shadow rounded-lg p-4 space-y-3">
         {trips.map((trip) => (
