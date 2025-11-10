@@ -1,36 +1,162 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
+const ItemIcon = ({ children }: { children: React.ReactNode }) => (
+  <span className="grid h-10 w-10 place-items-center rounded-lg bg-gray-100 text-gray-700 transition-colors group-hover:bg-gray-200">
+    {children}
+  </span>
+);
+
+const ChevronRight = () => (
+  <svg
+    className="h-5 w-5 text-gray-400 transition-transform duration-200 group-hover:translate-x-0.5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+);
+
+const AdminLink = ({
+  to,
+  title,
+  desc,
+  icon,
+}: {
+  to: string;
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+}) => (
+  <li>
+    <Link
+      to={to}
+      className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:bg-gray-50 hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+    >
+      <ItemIcon>{icon}</ItemIcon>
+      <div className="flex-1">
+        <h3 className="text-sm font-medium text-gray-900">{title}</h3>
+        <p className="text-xs text-gray-500">{desc}</p>
+      </div>
+      <ChevronRight />
+    </Link>
+  </li>
+);
+
+const CalendarCheck = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" />
+    <path d="M9 16l2 2 4-4" />
+  </svg>
+);
+
+const Suitcase = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <rect x="4" y="7" width="16" height="13" rx="2" />
+    <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+const PencilSquare = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 21l3.5-.9a2 2 0 0 0 .9-.5L20 7l-3-3L4.4 16.6a2 2 0 0 0-.5.9L3 21z" />
+    <path d="M14 4l6 6" />
+  </svg>
+);
+
+const RouteIcon = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="6" cy="6" r="2" />
+    <circle cx="18" cy="18" r="2" />
+    <path d="M8 8c4 0 8 4 8 8" />
+  </svg>
+);
+
 const AdminDashboard: React.FC = () => {
+  const items = [
+    {
+      to: 'reservations',
+      title: 'Peržiūrėti Rezervacijas',
+      desc: 'Užsakymai ir mokėjimai',
+      icon: <CalendarCheck />,
+    },
+    {
+      to: 'trip',
+      title: 'Kelionių Valdymas',
+      desc: 'Kurti ir valdyti keliones',
+      icon: <Suitcase />,
+    },
+    {
+      to: 'routes',
+      title: 'Maršrutų Valdymas',
+      desc: 'Tvarkyti maršrutus',
+      icon: <RouteIcon />,
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-      <Link to="reservations" className="bg-blue-500 text-white p-6 rounded-lg shadow-lg hover:bg-blue-600 transition-colors flex flex-col items-center justify-center text-center">
-        <h3 className="text-xl font-bold">Peržiūrėti Rezervacijas</h3>
-      </Link>
-      <Link to="trip" className="bg-green-500 text-white p-6 rounded-lg shadow-lg hover:bg-green-600 transition-colors flex flex-col items-center justify-center text-center">
-        <h3 className="text-xl font-bold">Kelionių Valdymas</h3>
-      </Link>
-      <Link to="modify-trips" className="bg-yellow-500 text-white p-6 rounded-lg shadow-lg hover:bg-yellow-600 transition-colors flex flex-col items-center justify-center text-center">
-        <h3 className="text-xl font-bold">Redaguoti Keliones</h3>
-      </Link>
-      <Link to="routes" className="bg-purple-500 text-white p-6 rounded-lg shadow-lg hover:bg-purple-600 transition-colors flex flex-col items-center justify-center text-center">
-        <h3 className="text-xl font-bold">Maršrutų Valdymas</h3>
-      </Link>
-    </div>
+    <nav aria-label="Administratoriaus navigacija" className="p-1">
+      <ul role="list" className="space-y-3">
+        {items.map((item) => (
+          <AdminLink key={item.to} {...item} />
+        ))}
+      </ul>
+    </nav>
   );
 };
 
 export const AdminPage: React.FC = () => {
   const location = useLocation();
-
   const isDashboard = location.pathname === '/admin';
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4">
-      <h1 className="text-4xl font-extrabold mb-8">Administratoriaus Panelė</h1>
+    <div className="max-w-3xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-extrabold mb-6 text-gray-900">Administratoriaus Panelė</h1>
       {isDashboard && <AdminDashboard />}
-      <div className="mt-4">
-        <Outlet /> {}
+      <div className="mt-6">
+        <Outlet />
       </div>
     </div>
   );
