@@ -35,6 +35,12 @@ const Navbar: React.FC = () => {
           >
             Admin
           </Link>
+          <Link
+            to="/profile"
+            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
+            Profilis
+          </Link>
           <button
             onClick={logout}
             className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
@@ -64,6 +70,12 @@ const Navbar: React.FC = () => {
             className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
             Rezervacijos
+          </Link>
+          <Link
+            to="/profile"
+            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+          >
+            Profilis
           </Link>
           <button
             onClick={handleLogout}

@@ -15,6 +15,9 @@ export const LoginPage: React.FC = () => {
     if (username.trim().toLowerCase() === "admin") {
       login("admin");
       navigate("/admin", { replace: true });
+    } else if (username.trim().toLowerCase() === "first") {
+      login("user");
+      navigate("/profile/approve", { replace: true });
     } else {
       login("user");
       navigate("/", { replace: true });

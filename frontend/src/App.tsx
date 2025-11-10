@@ -29,6 +29,9 @@ import { RezervationDetailPage } from "./pages/rezervations/RezervationDetailPag
 import { RezervationEditPage } from "./pages/rezervations/ReservationEditPage";
 import { PaymentPage } from "./pages/rezervations/PaymentPage";
 import { ReservationCreationPage } from "./pages/rezervations/ReservationCreationPage";
+import ProfilePage from "./pages/ProfilePage";
+import ProfileEditPage from "./pages/ProfileEditPage";
+import ProfileApprovalPage from "./pages/ProfileApprovalPage";
 
 function App() {
   return (
@@ -43,6 +46,9 @@ function App() {
         <Route path="/checkout" element={<StripeCheckoutPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/edit" element={<ProfileEditPage />} />
+        <Route path="/profile/approve" element={<ProfileApprovalPage />} />
         {/* Nested Admin Routes */}
         <Route path="/admin" element={<AdminPage />}>
           <Route path="reservations" element={<ViewReservationsPage />} />

@@ -123,7 +123,7 @@ export const ReservationCreationPage: React.FC = () => {
         <div className="flex justify-end mt-4 gap-2">
           <button
             type="button"
-            onClick={() => navigate("/rezervacijos")}
+            onClick={() => navigate("/trips")}
             className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
           >
             Atšaukti
