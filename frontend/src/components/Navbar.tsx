@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
             Admin
           </Link>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
           >
             Atsijungti
