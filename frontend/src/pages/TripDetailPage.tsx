@@ -3,14 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 
 // Cia imsim is db
 const sampleTripData = {
-  'greece': {
+  '1': {
     destination: 'Kelionė į Graikiją',
-    imageUrl: 'https://images.unsplash.com/photo-1580579628597-4229342c5c99',
+    imageUrl: 'https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740',
     route: 'Atėnai -> Santorini -> Kreta. Atraskite senovės istoriją ir mėgaukitės nuostabiais paplūdimiais.',
   },
-  'paris': {
+  '2': {
     destination: 'Savaitgalis Paryžiuje',
-    imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760c0337',
+    imageUrl: 'https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774',
     route: 'Aplankykite Eifelio bokštą, Luvro muziejų ir Monmartro rajoną. Romantiškas pabėgimas garantuotas.',
   },
   'maldives': {
@@ -49,7 +49,7 @@ export const TripDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold mb-4">Maršrutas ir Aprašymas</h2>
         <p className="text-gray-700 leading-relaxed mb-6">{trip.route}</p>
         <div className="text-center">
-            <Link to={`/reservation/${tripId}`} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-700 transition-colors text-lg">
+            <Link to={`/reservation`} className="bg-blue-600 text-white font-bold px-8 py-3 rounded-md hover:bg-blue-700 transition-colors text-lg">
                 Rezervuoti Dabar
             </Link>
         </div>

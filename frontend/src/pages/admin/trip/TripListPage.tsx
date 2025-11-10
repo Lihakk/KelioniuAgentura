@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import BackButton from '../../../components/BackButton';
 
 const trips = [
-  { id: 'greece', name: 'Kelionė į Graikiją' },
-  { id: 'paris', name: 'Savaitgalis Paryžiuje'},
+  { id: '1', name: 'Kelionė į Graikiją' },
+  { id: '2', name: 'Savaitgalis Paryžiuje'},
 ];
 
 export const TripListPage: React.FC = () => {
   return (
     <div className="p-6 bg-white shadow rounded-lg">
+        <BackButton/>
       <h2 className="text-2xl font-bold mb-4">Visos Kelionės</h2>
       <div className="space-y-3">
         {trips.map((t) => (
