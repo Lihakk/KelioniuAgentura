@@ -18,6 +18,10 @@ namespace backend.Entities
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public UserRole Role { get; set; }
+        
+        public string? Code {get; set;}
+        
+        public bool IsConfirmed {get; set;} = false;
 
         public List<Reservation> Reservations { get; set; } = new List<Reservation>();
     }
