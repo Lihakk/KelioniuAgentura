@@ -7,6 +7,7 @@ using backend.DTOs;
 using backend.Entities;
 using backend.Services.Interfaces.Results;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -46,24 +47,26 @@ public class AuthService : IAuthService
             return new AuthResult
             {
                 Success = false,
+                EmailConfirmed = false,
                 Message = "Password is not correct"
             };
         }
-
         if (!user.IsConfirmed)
         {
             return new AuthResult
             {
-                Success = false,
-                Message = "Account is not confirmed"
+                Success = true, 
+                EmailConfirmed = false,
+                Message = "Account not confirmed"
             };
         }
-        
+
         var token = GenerateJwtToken(user);
         
         return new AuthResult
         {
             Success = true,
+            EmailConfirmed = true,
             Token = token,
         };
     }
@@ -149,14 +152,61 @@ public class AuthService : IAuthService
                 Message = "Invalid code"
             };
         }
-        
+
         user.IsConfirmed = true;
-        
         await _context.SaveChangesAsync(cancellationToken);
+
+        var token = GenerateJwtToken(user);
 
         return new AuthResult
         {
             Success = true,
+            EmailConfirmed = true,
+            Token = token
         };
     }
+    public async Task<UserProfileDto> GetUserProfile(string userId, CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .AsNoTracking() 
+            .FirstOrDefaultAsync(u => u.Id.ToString() == userId, cancellationToken);
+
+        if (user is null)
+        {
+            throw new Exception("This user doesn't exist");
+        }
+        
+        var userInfo = new UserProfileDto
+        {
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Username = user.Username,
+            Role = user.Role,
+        };
+        
+        return userInfo;
+    }
+
+    public async Task<Me> Me(string userId, CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .AsNoTracking() 
+            .FirstOrDefaultAsync(u => u.Id.ToString() == userId, cancellationToken);
+
+        if (user is null)
+        {
+            throw new Exception("This user doesn't exist");
+        }
+        
+        var userInfo = new Me
+        {
+            Id = user.Id,
+            Role = user.Role,
+            isEmailConfirmed = user.IsConfirmed,
+        };
+        
+        return userInfo;
+    }
+    
 }
