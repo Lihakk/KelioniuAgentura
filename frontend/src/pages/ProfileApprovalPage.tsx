@@ -11,10 +11,14 @@ export const ProfileApprovalPage: React.FC = () => {
     e.preventDefault();
 
     if (code.length === 6 && /^[0-9]+$/.test(code)) {
-      await ConfirmEmail(code);
-      navigate("/");
+      try {
+        await ConfirmEmail(code);
+        navigate("/");
+      } catch {
+        setError("Kodo patvirtinimas nepavyko. Bandykite dar kartą.");
+      }
     } else {
-      setError("Prašome įvesti 6 skaitmenų kodą.");
+      setError("Įveskite galiojantį 6 skaitmenų kodą.");
     }
   };
 

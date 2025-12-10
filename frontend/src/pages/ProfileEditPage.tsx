@@ -1,26 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BackButton from "../components/BackButton";
+import { GetUserProfile } from "../api/user/GetUserProfile";
+import type { UserProfile } from "../types/User";
+import { UpdateProfile } from "../api/user/UpdateProfile";
 
 export const ProfileEditPage: React.FC = () => {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
-  // Mocked initial data (can be replaced with real user info later)
-  const [formData, setFormData] = useState({
-    name: "Jonas Petraitis",
-    email: "jonas.petraitis@example.com",
-    phone: "+370 600 12345",
-    address: "Vilnius, Lietuva",
+  const [formData, setFormData] = useState<UserProfile>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    username: "",
+    role: "",
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await GetUserProfile();
+      setProfile(data);
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+        username: profile.username,
+        role: profile.role,
+      });
+    }
+  }, [profile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    await UpdateProfile(formData);
     navigate("/profile");
   };
 
@@ -35,21 +60,36 @@ export const ProfileEditPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="name"
+              htmlFor="firstName"
               className="block text-sm font-medium text-gray-700"
             >
               Vardas
             </label>
             <input
-              id="name"
+              id="firstName"
               type="text"
-              value={formData.name}
+              value={formData.firstName}
               onChange={handleChange}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
               required
             />
           </div>
-
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Pavardė
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              value={formData.lastName}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+              required
+            />
+          </div>
           <div>
             <label
               htmlFor="email"
@@ -66,39 +106,22 @@ export const ProfileEditPage: React.FC = () => {
               required
             />
           </div>
-
           <div>
             <label
-              htmlFor="phone"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Telefono numeris
+              El. paštas
             </label>
             <input
-              id="phone"
+              id="username"
               type="text"
-              value={formData.phone}
+              value={formData.username}
               onChange={handleChange}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+              required
             />
           </div>
-
-          <div>
-            <label
-              htmlFor="address"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Adresas
-            </label>
-            <input
-              id="address"
-              type="text"
-              value={formData.address}
-              onChange={handleChange}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-            />
-          </div>
-
           <div className="pt-2">
             <button
               type="submit"

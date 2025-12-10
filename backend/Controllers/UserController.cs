@@ -47,8 +47,8 @@ public class UserController : ControllerBase
         return Ok(success);
     }
 
-    [HttpPost("ConfirmAccount")]
-    public async Task<IActionResult> ConfirmAccount(ConfirmationDto dto, CancellationToken cancellationToken)
+    [HttpPost("ConfirmEmail")]
+    public async Task<IActionResult> ConfirmEmail(ConfirmationDto dto, CancellationToken cancellationToken)
     {
         var result = await _authService.ConfirmEmail(dto.Code, cancellationToken);
 
@@ -59,7 +59,7 @@ public class UserController : ControllerBase
         {
             HttpOnly = true,
             Secure = false,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddMinutes(60)
         });
 
@@ -98,5 +98,21 @@ public class UserController : ControllerBase
         Response.Cookies.Delete("jwt");
 
         return Ok(new { message = "Logged out" });
+    }
+
+    [HttpPut("UpdateProfile")]
+    public async Task<IActionResult> EditUserProfile(UserProfileDto userInfo,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID claim missing."); 
+        }
+        
+        var updatedUser = await _authService.EditUserProfile(userId, userInfo, cancellationToken);
+        
+        return Ok(updatedUser);
     }
 }

@@ -10,4 +10,7 @@ public interface IAuthService
     Task<AuthResult> ConfirmEmail(string code, CancellationToken cancellationToken);
     Task<UserProfileDto> GetUserProfile(string userId, CancellationToken cancellationToken);
     Task<Me> Me(string userId, CancellationToken cancellationToken);
+
+    Task<UserProfileDto> EditUserProfile(string userId, UserProfileDto userInfo,
+        CancellationToken cancellationToken);
 }

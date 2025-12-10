@@ -29,7 +29,7 @@ export const SignupPage: React.FC = () => {
     console.log(registerInfo);
 
     await RegisterUser(registerInfo);
-    navigate("/", { replace: true });
+    navigate("/Login", { replace: true });
   };
 
   return (
@@ -87,7 +87,7 @@ export const SignupPage: React.FC = () => {
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              S
+              Slapyvardis
             </label>
             <input
               id="username"

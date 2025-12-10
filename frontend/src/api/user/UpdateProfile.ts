@@ -1,9 +1,11 @@
 import type { UserProfile } from "../../types/User";
 import { apiClient } from "../AxiosInstace";
 
-export const GetUserProfile = async (): Promise<UserProfile> => {
+export const UpdateProfile = async (
+  profile: UserProfile
+): Promise<UserProfile> => {
   try {
-    const res = await apiClient.get("User/Profile");
+    const res = await apiClient.put("User/UpdateProfile", profile);
     return res.data;
   } catch {
     throw new Error("Could not get user profile");

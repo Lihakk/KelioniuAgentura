@@ -1,19 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import BackButton from "../components/BackButton";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { GetUserProfile } from "../api/user/GetUserProfile";
+import type { UserProfile } from "../types/User";
 
 const ProfilePage: React.FC = () => {
-  const { role } = useAuth();
-
+  const [profile, setProfile] = React.useState<UserProfile | null>(null);
   const navigate = useNavigate();
 
-  const userData = {
-    name: "Jonas Petraitis",
-    email: "jonas.petraitis@example.com",
-    phone: "+370 600 12345",
-    address: "Vilnius, Lietuva",
-  };
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      const data = await GetUserProfile();
+      setProfile(data);
+    };
+    fetchData();
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -29,19 +31,14 @@ const ProfilePage: React.FC = () => {
               Vartotojo informacija
             </h2>
             <p className="text-gray-600">
-              <strong>Vardas:</strong> {userData.name}
+              <strong>Vardas ir pavardė:</strong> {profile?.firstName}{" "}
+              {profile?.lastName}
             </p>
             <p className="text-gray-600">
-              <strong>El. paštas:</strong> {userData.email}
+              <strong>El. paštas:</strong> {profile?.email}
             </p>
             <p className="text-gray-600">
-              <strong>Telefono numeris:</strong> {userData.phone}
-            </p>
-            <p className="text-gray-600">
-              <strong>Adresas:</strong> {userData.address}
-            </p>
-            <p className="text-gray-600">
-              <strong>Rolė:</strong> {role}
+              <strong>Rolė:</strong> {profile?.role}
             </p>
           </div>
 

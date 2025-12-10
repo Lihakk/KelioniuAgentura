@@ -14,7 +14,7 @@ export interface UserProfile {
   lastName: string;
   username: string;
   email: string;
-  isEmailConfirmed: boolean;
+  role: string;
 }
 export interface Me {
   id: string;

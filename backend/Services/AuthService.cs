@@ -115,6 +115,7 @@ public class AuthService : IAuthService
             Email = dto.Email,
             Code = code,
             IsConfirmed = false,
+            Role = UserRole.Client,
         };
         user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
         
@@ -208,5 +209,39 @@ public class AuthService : IAuthService
         
         return userInfo;
     }
-    
+
+    public async Task<UserProfileDto> EditUserProfile(string userId, UserProfileDto userInfo,
+        CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .AsNoTracking() 
+            .FirstOrDefaultAsync(u => u.Id.ToString() == userId, cancellationToken);
+
+        if (user is null)
+        {
+            throw new Exception("This user doesn't exist");
+        }
+
+        var usernameTaken = await _context.Users
+            .AnyAsync(u => u.Username == userInfo.Username && u.Id.ToString() != userId, cancellationToken);
+
+        if (usernameTaken)
+            throw new Exception("This username is already taken");
+        
+        var emailTaken = await _context.Users
+            .AnyAsync(u => u.Email == userInfo.Email && u.Id.ToString() != userId, cancellationToken);
+
+        if (emailTaken)
+            throw new Exception("this email is already taken");
+        user.FirstName = userInfo.FirstName;
+        user.LastName = userInfo.LastName;
+        
+        user.Username = userInfo.Username;
+        user.Email = userInfo.Email;
+        
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync(cancellationToken);
+        
+        return userInfo;
+    }
 }

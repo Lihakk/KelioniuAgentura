@@ -106,7 +106,8 @@ namespace backend.Data
                     Username = "admin",
                     Email = "admin@travel.com",
                     PasswordHash = "admin123",
-                    Role = UserRole.Administrator
+                    Role = UserRole.Administrator,
+                    IsConfirmed = true,
                 }
             );
         }
