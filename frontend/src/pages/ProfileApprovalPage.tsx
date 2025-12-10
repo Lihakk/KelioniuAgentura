@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ConfirmEmail } from "../api/user/ConfirmEmail";
 
 export const ProfileApprovalPage: React.FC = () => {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (code.length === 6 && /^[0-9]+$/.test(code)) {
-      console.log("Code approved:", code);
+      await ConfirmEmail(code);
       navigate("/");
     } else {
       setError("Prašome įvesti 6 skaitmenų kodą.");
