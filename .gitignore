@@ -16,3 +16,4 @@ dist/
 
 # VS Code
 .vscode/
+.idea
