@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { GetAllReservations } from "../../api/reservation/GetAllReservations";
 
 type Reservation = {
   id: number;
@@ -16,7 +17,8 @@ const initialReservations: Reservation[] = [
     tripName: "Kelionė į Graikiją",
     date: "2025-06-15",
     people: 2,
-    imageUrl: "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
+    imageUrl:
+      "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
     isPaid: false,
   },
   {
@@ -24,14 +26,21 @@ const initialReservations: Reservation[] = [
     tripName: "Savaitgalis Paryžiuje",
     date: "2025-07-03",
     people: 4,
-    imageUrl: "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
+    imageUrl:
+      "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
     isPaid: true,
   },
 ];
-
 export const RezervationListPage: React.FC = () => {
-  const [reservations, setReservations] = useState(initialReservations);
+  useEffect(() => {
+    const fetchReservations = async () => {
+      const data = await GetAllReservations();
+      console.log(data);
+    };
+    fetchReservations();
+  }, []);
 
+  const [reservations, setReservations] = useState(initialReservations);
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center mb-8">Mano Rezervacijos</h1>

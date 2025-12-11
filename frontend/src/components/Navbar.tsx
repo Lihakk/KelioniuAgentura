@@ -8,14 +8,17 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { role, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
     navigate("/");
   };
 
+  // --- FIXED ROLE CHECKS BASED ON BACKEND ---
+  const isAdmin = role === "Administrator";
+  const isUser = role === "Client" || role === "Employee";
+
   const MenuLinks = () => {
-    // ---------------- Administrator ----------------
-    if (role === "Administrator") {
+    if (isAdmin) {
       return (
         <>
           <Link
@@ -34,7 +37,7 @@ const Navbar: React.FC = () => {
             to="/admin"
             className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
-            Administracija
+            Admin
           </Link>
           <Link
             to="/profile"
@@ -42,6 +45,7 @@ const Navbar: React.FC = () => {
           >
             Profilis
           </Link>
+
           <button
             onClick={handleLogout}
             className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
@@ -52,8 +56,7 @@ const Navbar: React.FC = () => {
       );
     }
 
-    // ---------------- Employee ----------------
-    if (role === "Employee") {
+    if (isUser) {
       return (
         <>
           <Link
@@ -69,10 +72,10 @@ const Navbar: React.FC = () => {
             Kelionės
           </Link>
           <Link
-            to="/employee"
+            to="/reservation"
             className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
           >
-            Darbuotojo sistema
+            Rezervacijos
           </Link>
           <Link
             to="/profile"
@@ -80,6 +83,7 @@ const Navbar: React.FC = () => {
           >
             Profilis
           </Link>
+
           <button
             onClick={handleLogout}
             className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
@@ -90,45 +94,7 @@ const Navbar: React.FC = () => {
       );
     }
 
-    // ---------------- Client ----------------
-    if (role === "Client") {
-      return (
-        <>
-          <Link
-            to="/"
-            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Pagrindinis
-          </Link>
-          <Link
-            to="/trips"
-            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Kelionės
-          </Link>
-          <Link
-            to="/client"
-            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Mano sistemos
-          </Link>
-          <Link
-            to="/profile"
-            className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Profilis
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-          >
-            Atsijungti
-          </button>
-        </>
-      );
-    }
-
-    // ---------------- Guest ----------------
+    // Guest menu
     return (
       <>
         <Link
@@ -163,41 +129,45 @@ const Navbar: React.FC = () => {
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-2xl font-bold text-gray-900">
-            Kelionių Agentūra
-          </Link>
+          <div className="flex-shrink-0">
+            <Link to="/" className="text-2xl font-bold text-gray-900">
+              Kelionių Agentūra
+            </Link>
+          </div>
 
           <div className="hidden md:flex items-center space-x-2">
             <MenuLinks />
           </div>
 
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
             >
-              {isMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
+              <svg
+                className="h-6 w-6"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                {isMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
