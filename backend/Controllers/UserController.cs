@@ -10,17 +10,17 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
 
-    public UserController(IAuthService authService)
+    public UserController(IUserService userService)
     {
-        _authService = authService;
+        _userService = userService;
     }
     
     [HttpPost("Register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto, CancellationToken cancellationToken)
     {
-        var success = await _authService.Register(dto, cancellationToken);
+        var success = await _userService.Register(dto, cancellationToken);
         if (!success.Success) return BadRequest(success.Message);
         return Ok("Confirmation code sent to your email");
     }
@@ -28,29 +28,29 @@ public class UserController : ControllerBase
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] AuthenticateUserDto dto, CancellationToken cancellationToken)
     {
-        var success = await _authService.Authenticate(dto, cancellationToken);
-        if (!success.Success)
-            return BadRequest(success.Message);
+        var result = await _userService.Authenticate(dto, cancellationToken);
+        if (!result.Success)
+            return BadRequest(result.Message);
 
-        if (!success.EmailConfirmed)
+        if (!result.EmailConfirmed)
         {
-            return Ok(success);
+            return Ok(result);
         }
 
-        Response.Cookies.Append("jwt", success.Token!, new CookieOptions
+        Response.Cookies.Append("jwt", result.Token!, new CookieOptions
         {
             HttpOnly = true,
             Secure = false,       
             SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddMinutes(60)
         });
-        return Ok(success);
+        return Ok(result);
     }
 
     [HttpPost("ConfirmEmail")]
     public async Task<IActionResult> ConfirmEmail(ConfirmationDto dto, CancellationToken cancellationToken)
     {
-        var result = await _authService.ConfirmEmail(dto.Code, cancellationToken);
+        var result = await _userService.ConfirmEmail(dto.Code, cancellationToken);
 
         if (!result.Success)
             return BadRequest(result.Message);
@@ -76,7 +76,7 @@ public class UserController : ControllerBase
             return Unauthorized("User ID claim missing."); 
         }
         
-        var user = await _authService.GetUserProfile(userId, cancellationToken);
+        var user = await _userService.GetUserProfile(userId, cancellationToken);
         return Ok(user);
     }
     [HttpGet("Me")]
@@ -89,7 +89,7 @@ public class UserController : ControllerBase
             return Unauthorized("User ID claim missing."); 
         }
         
-        var user = await _authService.Me(userId, cancellationToken);
+        var user = await _userService.Me(userId, cancellationToken);
         return Ok(user);
     }
     [HttpPost("Logout")]
@@ -111,7 +111,7 @@ public class UserController : ControllerBase
             return Unauthorized("User ID claim missing."); 
         }
         
-        var updatedUser = await _authService.EditUserProfile(userId, userInfo, cancellationToken);
+        var updatedUser = await _userService.EditUserProfile(userId, userInfo, cancellationToken);
         
         return Ok(updatedUser);
     }

@@ -13,14 +13,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace backend.Services.Interfaces;
 
-public class AuthService : IAuthService
+public class UserService : IUserService
 {
     private AppDbContext _context;
     private JwtSettings _jwtSettings;
     private IEmailService _emailService;
     private readonly IPasswordHasher<User> _passwordHasher;
 
-    public AuthService(AppDbContext context, JwtSettings jwtSettings, IEmailService emailService, IPasswordHasher<User> passwordHasher)
+    public UserService(AppDbContext context, JwtSettings jwtSettings, IEmailService emailService, IPasswordHasher<User> passwordHasher)
     {
         _context = context;
         _jwtSettings = jwtSettings;

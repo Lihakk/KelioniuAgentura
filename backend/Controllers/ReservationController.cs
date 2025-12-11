@@ -1,6 +1,10 @@
+using Microsoft.AspNetCore.Mvc;
+
 namespace backend.Controllers;
 
-public class ReservationController
+[ApiController]
+[Route("api/[controller]")]
+public class ReservationController : ControllerBase
 {
     
 }
