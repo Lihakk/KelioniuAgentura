@@ -2,28 +2,39 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import type { LoginCredentials } from "../types/User";
+import { AuthenticateUser } from "../api/user/AuthenticateUser";
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const auth = useAuth();
   const navigate = useNavigate();
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const username = (form.elements.namedItem("username") as HTMLInputElement)
-      .value;
-    if (username.trim().toLowerCase() === "admin") {
-      login("admin");
-      navigate("/admin", { replace: true });
-    } else if (username.trim().toLowerCase() === "first") {
-      login("user");
-      navigate("/profile/approve", { replace: true });
-    } else {
-      login("user");
-      navigate("/", { replace: true });
+    const username = form.elements.namedItem("username") as HTMLInputElement;
+    const password = form.elements.namedItem("password") as HTMLInputElement;
+
+    const loginInfo: LoginCredentials = {
+      username: username.value,
+      password: password.value,
+    };
+
+    try {
+      const result = await AuthenticateUser(loginInfo);
+
+      if (result.success && !result.emailConfirmed) {
+        return navigate("/profile/approve");
+      }
+
+      const reload = await auth.reload();
+      if (reload.authenticated) {
+        navigate("/");
+      }
+    } catch (err: any) {
+      alert(err.message || "Invalid username or password");
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">

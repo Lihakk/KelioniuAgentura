@@ -1,42 +1,69 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { apiClient } from "../api/AxiosInstace";
 
-type Role = 'guest' | 'user' | 'admin';
-
-type AuthContextValue = {
-  role: Role;
-  login: (nextRole: Exclude<Role, 'guest'>) => void;
-  logout: () => void;
+type AuthContextType = {
+  role: string;
+  isAuthenticated: boolean;
+  isEmailConfirmed: boolean;
+  reload: () => Promise<{ authenticated: boolean; confirmed: boolean }>;
+  logout: () => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRole] = useState<Role>(() => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [role, setRole] = useState<string>("guest");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isEmailConfirmed, setIsEmailConfirmed] = useState<boolean>(false);
+
+  const reload = async () => {
     try {
-      const saved = localStorage.getItem('app.role');
-      return (saved as Role) || 'guest';
+      const res = await apiClient.get("/User/Me");
+
+      const confirmed = res.data.isEmailConfirmed === true;
+      setRole(res.data.role ?? "guest");
+      setIsEmailConfirmed(confirmed);
+      setIsAuthenticated(confirmed);
+
+      return { authenticated: confirmed, confirmed };
     } catch {
-      return 'guest';
+      setRole("guest");
+      setIsEmailConfirmed(false);
+      setIsAuthenticated(false);
+
+      return { authenticated: false, confirmed: false };
     }
-  });
+  };
+
+  const logout = async () => {
+    try {
+      await apiClient.post("/User/Logout");
+    } finally {
+      setRole("guest");
+      setIsEmailConfirmed(false);
+      setIsAuthenticated(false);
+    }
+  };
 
   useEffect(() => {
-    try {
-      localStorage.setItem('app.role', role);
-    } catch {
-    }
-  }, [role]);
+    reload();
+  }, []);
 
-  const login = (nextRole: Exclude<Role, 'guest'>) => setRole(nextRole);
-  const logout = () => setRole('guest');
-
-  const value = useMemo(() => ({ role, login, logout }), [role]);
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        role,
+        isAuthenticated,
+        isEmailConfirmed,
+        reload,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
-};
+export const useAuth = () => useContext(AuthContext)!;

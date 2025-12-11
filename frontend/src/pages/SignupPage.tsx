@@ -2,14 +2,34 @@
 import React from "react";
 import BackButton from "../components/BackButton";
 import { useNavigate } from "react-router-dom";
+import type { RegisterUserDetails } from "../types/User";
+import { RegisterUser } from "../api/user/RegisterUser";
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/");
-    // TODO: send to backend
+    const form = e.target as HTMLFormElement;
+
+    const username = form.elements.namedItem("username") as HTMLInputElement;
+    const password = form.elements.namedItem("password") as HTMLInputElement;
+    const email = form.elements.namedItem("email") as HTMLInputElement;
+    const firstName = form.elements.namedItem("firstName") as HTMLInputElement;
+    const lastName = form.elements.namedItem("lastName") as HTMLInputElement;
+
+    const registerInfo: RegisterUserDetails = {
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email.value,
+      username: username.value,
+      password: password.value,
+    };
+
+    console.log(registerInfo);
+
+    await RegisterUser(registerInfo);
+    navigate("/Login", { replace: true });
   };
 
   return (
@@ -22,14 +42,28 @@ export const SignupPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
-              htmlFor="name"
+              htmlFor="firstName"
               className="block text-sm font-medium text-gray-700"
             >
               Vardas
             </label>
             <input
-              id="name"
+              id="firstName"
               type="text"
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Pavardė
+            </label>
+            <input
+              id="lastName"
+              type="lastName"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
@@ -50,27 +84,27 @@ export const SignupPage: React.FC = () => {
           </div>
           <div>
             <label
-              htmlFor="password"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Slaptažodis
+              Slapyvardis
             </label>
             <input
-              id="password"
-              type="password"
+              id="username"
+              type="username"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
           <div>
             <label
-              htmlFor="confirm"
+              htmlFor="password "
               className="block text-sm font-medium text-gray-700"
             >
-              Pakartokite slaptažodį
+              Slaptažodis
             </label>
             <input
-              id="confirm"
+              id="password"
               type="password"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"

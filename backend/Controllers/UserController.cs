@@ -1,0 +1,118 @@
+using System.Security.Claims;
+using backend.DTOs;
+using backend.Entities;
+using backend.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
+{
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
+    {
+        _userService = userService;
+    }
+    
+    [HttpPost("Register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto, CancellationToken cancellationToken)
+    {
+        var success = await _userService.Register(dto, cancellationToken);
+        if (!success.Success) return BadRequest(success.Message);
+        return Ok("Confirmation code sent to your email");
+    }
+
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] AuthenticateUserDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _userService.Authenticate(dto, cancellationToken);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        if (!result.EmailConfirmed)
+        {
+            return Ok(result);
+        }
+
+        Response.Cookies.Append("jwt", result.Token!, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,       
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
+        });
+        return Ok(result);
+    }
+
+    [HttpPost("ConfirmEmail")]
+    public async Task<IActionResult> ConfirmEmail(ConfirmationDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _userService.ConfirmEmail(dto.Code, cancellationToken);
+
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        Response.Cookies.Append("jwt", result.Token!, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
+        });
+
+        return Ok(result);
+    }
+
+    [HttpGet("Profile")]
+    public async Task<IActionResult> GetUserProfile(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID claim missing."); 
+        }
+        
+        var user = await _userService.GetUserProfile(userId, cancellationToken);
+        return Ok(user);
+    }
+    [HttpGet("Me")]
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID claim missing."); 
+        }
+        
+        var user = await _userService.Me(userId, cancellationToken);
+        return Ok(user);
+    }
+    [HttpPost("Logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt");
+
+        return Ok(new { message = "Logged out" });
+    }
+
+    [HttpPut("UpdateProfile")]
+    public async Task<IActionResult> EditUserProfile(UserProfileDto userInfo,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("User ID claim missing."); 
+        }
+        
+        var updatedUser = await _userService.EditUserProfile(userId, userInfo, cancellationToken);
+        
+        return Ok(updatedUser);
+    }
+}

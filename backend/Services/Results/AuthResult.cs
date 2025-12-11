@@ -1,0 +1,9 @@
+namespace backend.Services.Interfaces.Results;
+
+public class AuthResult
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public bool EmailConfirmed { get; set; } = false;
+    public string? Token { get; set; }
+}
