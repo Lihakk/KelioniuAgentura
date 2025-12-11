@@ -17,7 +17,8 @@ const reservationsData: Reservation[] = [
     tripName: "Kelionė į Graikiją",
     date: "2025-06-15",
     people: 2,
-    imageUrl: "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
+    imageUrl:
+      "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
     isPaid: false,
   },
   {
@@ -25,7 +26,8 @@ const reservationsData: Reservation[] = [
     tripName: "Savaitgalis Paryžiuje",
     date: "2025-07-03",
     people: 4,
-    imageUrl: "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
+    imageUrl:
+      "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
     isPaid: true,
   },
 ];
@@ -45,7 +47,7 @@ export const RezervationDetailPage: React.FC = () => {
   const handleCancel = () => {
     setReservations((prev) => prev.filter((r) => r.id !== reservation.id));
     setModalOpen(false);
-    navigate("/rezervacijos"); // back to list
+    navigate("/reservation");
   };
 
   const handlePayment = () => {
@@ -86,7 +88,7 @@ export const RezervationDetailPage: React.FC = () => {
 
           <div className="flex justify-between mt-6">
             <Link
-              to="/rezervacijos"
+              to="/reservation"
               className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
             >
               Grįžti
