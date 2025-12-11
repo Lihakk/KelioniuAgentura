@@ -3,6 +3,7 @@ using backend.Configurations;
 using backend.Data;
 using backend.Entities;
 using backend.Services.Interfaces;
+using backend.Services.Interfaces.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 builder.Services.AddCors(options =>
 {
