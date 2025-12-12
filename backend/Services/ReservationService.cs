@@ -232,15 +232,21 @@ public class ReservationService : IReservationService
 
     public async Task AddTraveler(CreateTravelerDto traveler, CancellationToken cancellationToken)
     {
+        var reservationExists = await _context.Reservations
+            .AnyAsync(r => r.Id == traveler.ReservationId, cancellationToken);
+
+        if (!reservationExists)
+            throw new KeyNotFoundException("Reservation not found.");
+
         var newTraveler = new Traveler
         {
-            BirthDate = traveler.BirthDate,
-            DocumentNumber = traveler.DocumentNumber,
             FirstName = traveler.FirstName,
             LastName = traveler.LastName,
+            BirthDate = traveler.BirthDate,
+            DocumentNumber = traveler.DocumentNumber,
             ReservationId = traveler.ReservationId,
         };
-        
+
         _context.Travelers.Add(newTraveler);
         await _context.SaveChangesAsync(cancellationToken);
     }

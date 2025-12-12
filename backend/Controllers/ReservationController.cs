@@ -57,13 +57,13 @@ public class ReservationController : ControllerBase
     [HttpDelete("DeleteTraveler/{id}")]
     public async Task<IActionResult> DeleteTraveler(int id, CancellationToken cancellationToken)
     {
-        _reservationService.RemoveTraveler(id, cancellationToken);
+        await _reservationService.RemoveTraveler(id, cancellationToken);
         return Ok();
     }
     [HttpPost("AddTraveler")]
     public async Task<IActionResult> AddTraveler(CreateTravelerDto traveler, CancellationToken cancellationToken)
     {
-        _reservationService.AddTraveler(traveler, cancellationToken);
+        await _reservationService.AddTraveler(traveler, cancellationToken);
         return Ok();
     }
 }
