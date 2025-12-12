@@ -14,7 +14,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { AdminPage } from "./pages/AdminPage";
 import { ViewReservationsPage } from "./pages/admin/ViewReservationsPage";
 import { AddTripPage } from "./pages/admin/trip/AddTripPage";
-import { ModifyTripsPage } from "./pages/admin/trip/ModifyTripsPage";
+import { ModifyTripPage } from "./pages/admin/trip/ModifyTripPage";
 import { SignupPage } from "./pages/SignupPage";
 // Admin Routes Imports
 import { RoutesDashboardPage } from "./pages/admin/routes/RoutesDashboardPage";
@@ -23,8 +23,7 @@ import { RoutePreviewPage } from "./pages/admin/routes/RoutePreviewPage";
 import { RouteEditPage } from "./pages/admin/routes/RouteEditPage";
 import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage"; // Import the new page
 import { TripDashboardPage } from "./pages/admin/trip/TripDashboardPage";
-import { TripListPage } from "./pages/admin/trip/TripListPage";
-import { RezervationListPage } from "./pages/rezervations/RezervationListPage";
+import { AdminTripListPage } from "./pages/admin/trip/AdminTripListPage"; // Kelias atrodo teisingas, tikrinkite eksportąimport { RezervationListPage } from "./pages/rezervations/RezervationListPage";
 import { RezervationDetailPage } from "./pages/rezervations/RezervationDetailPage";
 import { RezervationEditPage } from "./pages/rezervations/ReservationEditPage";
 import { PaymentPage } from "./pages/rezervations/PaymentPage";
@@ -53,18 +52,17 @@ function App() {
         <Route path="/admin" element={<AdminPage />}>
           <Route path="reservations" element={<ViewReservationsPage />} />
           <Route path="routes" element={<RoutesDashboardPage />} />
-          <Route path="routes/create" element={<RouteCreatePage />} />{" "}
-          {/* Add the new route */}
+          <Route path="routes/create" element={<RouteCreatePage />} />
           <Route path="routes/preview" element={<RoutePreviewPage />} />
           <Route path="routes/edit" element={<RouteEditPage />} />
           <Route path="routes/estimate-time" element={<EstimateTimePage />} />
-          <Route path="trip" element={<TripDashboardPage />}></Route>
+          <Route path="trip" element={<AdminTripListPage />} />
           <Route path="trip/create" element={<AddTripPage />} />
-          <Route path="trip/edit" element={<ModifyTripsPage />} />
-          <Route path="trip/list" element={<TripListPage />} />
-        </Route>
+          <Route path="trip/edit/:id" element={<ModifyTripPage />} />
 
-        <Route path="/reservation" element={<RezervationListPage />}></Route>
+        
+          
+        </Route>
         <Route path="/rezervation/:id" element={<RezervationDetailPage />} />
         <Route path="/rezervation/:id/edit" element={<RezervationEditPage />} />
         <Route path="/payment/:id" element={<PaymentPage />} />

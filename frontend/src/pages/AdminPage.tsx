@@ -81,22 +81,6 @@ const Suitcase = () => (
   </svg>
 );
 
-const PencilSquare = () => (
-  <svg
-    className="h-5 w-5"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M3 21l3.5-.9a2 2 0 0 0 .9-.5L20 7l-3-3L4.4 16.6a2 2 0 0 0-.5.9L3 21z" />
-    <path d="M14 4l6 6" />
-  </svg>
-);
-
 const RouteIcon = () => (
   <svg
     className="h-5 w-5"
@@ -114,6 +98,23 @@ const RouteIcon = () => (
   </svg>
 );
 
+const LightBulbIcon = () => (
+  <svg
+    className="h-5 w-5"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M9 18h6" />
+    <path d="M10 22h4" />
+    <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+  </svg>
+);
+
 const AdminDashboard: React.FC = () => {
   const items = [
     {
@@ -125,7 +126,7 @@ const AdminDashboard: React.FC = () => {
     {
       to: 'trip',
       title: 'Kelionių Valdymas',
-      desc: 'Kurti ir valdyti keliones',
+      desc: 'Valdyti visas keliones',
       icon: <Suitcase />,
     },
     {
@@ -134,6 +135,7 @@ const AdminDashboard: React.FC = () => {
       desc: 'Tvarkyti maršrutus',
       icon: <RouteIcon />,
     },
+    
   ];
 
   return (
@@ -146,6 +148,7 @@ const AdminDashboard: React.FC = () => {
     </nav>
   );
 };
+
 
 export const AdminPage: React.FC = () => {
   const location = useLocation();

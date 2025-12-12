@@ -1,36 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import BackButton from '../../../components/BackButton';
+
+
+const API_ENDPOINTS = {
+  TRIPS: {
+    GET_ONE: (id: number) => `http://localhost:5050/api/admin/trips/${id}`, 
+    UPDATE: (id: number) => `http://localhost:5050/api/admin/trips/${id}`, 
+    GET_ALL: 'http://localhost:5050/api/admin/trips', 
+  },
+};
 
 interface Route {
   id: number;
   name: string;
 }
 
-export const AddTripPage: React.FC = () => {
+interface TripData { 
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  price: number;
+  routeId: number;
+}
+
+export const ModifyTripPage: React.FC = () => {
   const navigate = useNavigate();
+
+  const { id } = useParams<{ id: string }>(); 
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TripData>({
     name: '',
     description: '',
     startDate: '',
     endDate: '',
     price: 0,
-    routeId: 1,
+    routeId: 0, 
   });
 
   const [routes, setRoutes] = useState<Route[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingTrip, setLoadingTrip] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    
     setRoutes([
       { id: 1, name: 'Graikijos turas' },
       { id: 2, name: 'Prancūzijos kelionė' },
       { id: 3, name: 'Italijos maršrutas' },
     ]);
-  }, []);
+    
+    
+    if (id) {
+      const tripId = parseInt(id);
+      if (!isNaN(tripId)) {
+        fetchTrip(tripId);
+      } else {
+        setError('Neteisingas kelionės ID formatas.');
+        setLoadingTrip(false);
+      }
+    }
+  }, [id]);
+
+  const fetchTrip = async (tripId: number) => {
+    try {
+      setLoadingTrip(true);
+      const url = API_ENDPOINTS.TRIPS.GET_ONE(tripId); 
+
+      const response = await axios.get(url);
+      
+      const trip = response.data; 
+
+     
+      const startDate = new Date(trip.startDate).toISOString().split('T')[0];
+      const endDate = new Date(trip.endDate).toISOString().split('T')[0];
+      
+      setFormData({
+        name: trip.name,
+        description: trip.description,
+        startDate: startDate,
+        endDate: endDate,
+        price: parseFloat(trip.price) || 0, 
+        routeId: parseInt(trip.routeId) || 0, 
+      });
+
+    } catch (error) {
+      console.error('Klaida gaunant kelionės duomenis:', error);
+      setError('Nepavyko užkrauti kelionės duomenų.');
+    } finally {
+      setLoadingTrip(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -38,34 +101,63 @@ export const AddTripPage: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'routeId' ? parseFloat(value) || 0 : value,
+      
+      [name]: name === 'price' 
+        ? parseFloat(value) || 0 
+        : name === 'routeId' 
+        ? parseInt(value) || 0 
+        : value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
 
-    try {
-      await axios.post('http://localhost:5050/api/admin/trips', formData);
-      alert('Kelionė sėkmingai sukurta!');
-      navigate('/admin/trip');
-    } catch (error: any) {
-      console.error('Error creating trip:', error);
-      setError(
-        error.response?.data?.message ||
-          'Nepavyko sukurti kelionės. Bandykite dar kartą.'
+  if (!id) {
+    setError('Trūksta kelionės ID atnaujinimui.');
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const url = API_ENDPOINTS.TRIPS.UPDATE(parseInt(id));
+    await axios.put(url, formData); 
+
+    alert('Kelionė sėkmingai atnaujinta!');
+    navigate(`/trip/${id}`);
+  } catch (error: any) {
+    console.error('Klaida atnaujinant kelionę:', error);
+    setError(
+      error.response?.data?.message ||
+        'Nepavyko atnaujinti kelionės. Bandykite dar kartą.'
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+  if (loadingTrip) {
+    
+    return (
+        <div className="p-6">
+          <BackButton />
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Kraunami duomenys...</p>
+            </div>
+          </div>
+        </div>
       );
-    } finally {
-      setLoading(false);
-    }
-  };
+  }
 
+  
   return (
     <div className="p-6">
       <BackButton />
-      <h2 className="text-2xl font-bold mb-4">Pridėti Naują Kelionę</h2>
+      <h2 className="text-2xl font-bold mb-4">Redaguoti Kelionę</h2>
 
       {/* Error Message */}
       {error && (
@@ -192,7 +284,7 @@ export const AddTripPage: React.FC = () => {
               onChange={handleChange}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">Pasirinkite maršrutą</option>
+              <option value={0} disabled>Pasirinkite maršrutą</option>
               {routes.map((route) => (
                 <option key={route.id} value={route.id}>
                   {route.name}
@@ -232,7 +324,7 @@ export const AddTripPage: React.FC = () => {
               Saugoma...
             </>
           ) : (
-            'Išsaugoti Kelionę'
+            'Išsaugoti Pakeitimus'
           )}
         </button>
       </form>
