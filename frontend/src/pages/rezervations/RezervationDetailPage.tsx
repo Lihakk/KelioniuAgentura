@@ -1,51 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-
-type Reservation = {
-  id: number;
-  tripName: string;
-  date: string;
-  people: number;
-  imageUrl: string;
-  isPaid: boolean;
-};
-
-// Sample data (replace with API or state)
-const reservationsData: Reservation[] = [
-  {
-    id: 1,
-    tripName: "Kelionė į Graikiją",
-    date: "2025-06-15",
-    people: 2,
-    imageUrl:
-      "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
-    isPaid: false,
-  },
-  {
-    id: 2,
-    tripName: "Savaitgalis Paryžiuje",
-    date: "2025-07-03",
-    people: 4,
-    imageUrl:
-      "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
-    isPaid: true,
-  },
-];
+import type { Reservation } from "../../types/Reservation";
+import { GetReservationById } from "../../api/reservation/GetReservationById";
 
 export const RezervationDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [reservations, setReservations] = useState(reservationsData);
+  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const reservation = reservations.find((r) => r.id === Number(id));
-  if (!reservation)
+  useEffect(() => {
+    const fetchReservation = async () => {
+      try {
+        const data = await GetReservationById(id ? Number(id) : 0);
+        setReservation(data);
+      } catch {
+        console.error("Could not fetch reservation details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReservation();
+  }, []);
+
+  if (loading) {
+    return (
+      <p className="text-center mt-12 text-gray-500">Kraunama rezervacija...</p>
+    );
+  }
+
+  if (!reservation) {
     return (
       <p className="text-center mt-12 text-gray-500">Rezervacija nerasta.</p>
     );
+  }
 
   const handleCancel = () => {
-    setReservations((prev) => prev.filter((r) => r.id !== reservation.id));
     setModalOpen(false);
     navigate("/reservation");
   };
@@ -61,29 +53,50 @@ export const RezervationDetailPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center mb-8">
-        {reservation.tripName}
+        {reservation.reservationTrip.title}
       </h1>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <img
+        {/* <img
           src={reservation.imageUrl}
           alt={reservation.tripName}
           className="w-full h-64 object-cover"
-        />
+        /> */}
         <div className="p-6 flex flex-col gap-4">
           <p>
-            <span className="font-semibold">Data:</span> {reservation.date}
+            <span className="font-semibold">Kelionės pradžia:</span>{" "}
+            {new Date(reservation.reservationTrip.startDate).toLocaleDateString(
+              "lt",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            )}
+          </p>
+          <p>
+            <span className="font-semibold">Kelionės pabaiga:</span>{" "}
+            {new Date(reservation.reservationTrip.endDate).toLocaleDateString(
+              "lt",
+              {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            )}
           </p>
           <p>
             <span className="font-semibold">Keliautojų skaičius:</span>{" "}
-            {reservation.people}
+            {reservation.travelers.length}
           </p>
           <p
             className={`font-semibold ${
-              reservation.isPaid ? "text-green-600" : "text-yellow-600"
+              reservation.payment.status == "paid"
+                ? "text-green-600"
+                : "text-yellow-600"
             }`}
           >
-            {reservation.isPaid ? "Apmokėta" : "Rezervuota"}
+            {reservation.payment.status == "paid" ? "Apmokėta" : "Rezervuota"}
           </p>
 
           <div className="flex justify-between mt-6">
@@ -94,7 +107,7 @@ export const RezervationDetailPage: React.FC = () => {
               Grįžti
             </Link>
             <div className="flex gap-2">
-              {!reservation.isPaid && (
+              {reservation.status != "paid" && (
                 <button
                   onClick={handlePayment}
                   className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -119,7 +132,6 @@ export const RezervationDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
