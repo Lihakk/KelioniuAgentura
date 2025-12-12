@@ -11,7 +11,7 @@ public class ReservationDto
     
     public int UserId { get; set; }
     // this part should use tripDto object
-    public int TripId { get; set; }
+    public ReservationTripDto ReservationTrip { get; set; }
 
     public PaymentDto Payment { get; set; }
     public List<TravelerDto> Travelers { get; set; } = new List<TravelerDto>();

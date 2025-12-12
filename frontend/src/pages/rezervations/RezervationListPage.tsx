@@ -1,46 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { GetAllReservations } from "../../api/reservation/GetAllReservations";
+import type { Reservation } from "../../types/Reservation";
 
-type Reservation = {
-  id: number;
-  tripName: string;
-  date: string;
-  people: number;
-  imageUrl: string;
-  isPaid: boolean;
-};
-
-const initialReservations: Reservation[] = [
-  {
-    id: 1,
-    tripName: "Kelionė į Graikiją",
-    date: "2025-06-15",
-    people: 2,
-    imageUrl:
-      "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
-    isPaid: false,
-  },
-  {
-    id: 2,
-    tripName: "Savaitgalis Paryžiuje",
-    date: "2025-07-03",
-    people: 4,
-    imageUrl:
-      "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
-    isPaid: true,
-  },
-];
 export const RezervationListPage: React.FC = () => {
   useEffect(() => {
     const fetchReservations = async () => {
       const data = await GetAllReservations();
       console.log(data);
+      setReservations(data);
     };
     fetchReservations();
   }, []);
 
-  const [reservations, setReservations] = useState(initialReservations);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center mb-8">Mano Rezervacijos</h1>
@@ -52,33 +25,54 @@ export const RezervationListPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {reservations.map((reservation) => (
             <div
-              key={reservation.id}
+              key={reservation.reservationTrip.title}
               className="bg-white rounded-lg shadow-lg overflow-hidden group"
             >
-              <img
+              {/* <img
                 src={reservation.imageUrl}
                 alt={reservation.tripName}
                 className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
-              />
+              /> */}
               <div className="p-6 flex flex-col gap-3">
-                <h2 className="font-bold text-xl">{reservation.tripName}</h2>
+                <h2 className="font-bold text-xl">
+                  {reservation.reservationTrip.description}
+                </h2>
                 <p>
-                  <span className="font-semibold">Data:</span>{" "}
-                  {reservation.date}
+                  <span className="font-semibold">Kelionės pradžia:</span>{" "}
+                  {new Date(
+                    reservation.reservationTrip.startDate
+                  ).toLocaleDateString("lt", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+                <p>
+                  <span className="font-semibold">Kelionės pabaiga:</span>{" "}
+                  {new Date(
+                    reservation.reservationTrip.endDate
+                  ).toLocaleDateString("lt", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
                 </p>
                 <p>
                   <span className="font-semibold">Keliautojų skaičius:</span>{" "}
-                  {reservation.people}
+                  {reservation.travelers.length}
                 </p>
                 <p
                   className={`font-semibold ${
-                    reservation.isPaid ? "text-green-600" : "text-yellow-600"
+                    reservation.payment.status == "paid"
+                      ? "text-green-600"
+                      : "text-yellow-600"
                   }`}
                 >
-                  {reservation.isPaid ? "Apmokėta" : "Rezervuota"}
+                  {reservation.payment.status == "paid"
+                    ? "Apmokėta"
+                    : "Rezervuota"}
                 </p>
 
-                {/* Button to go to the detail page */}
                 <Link
                   to={`/rezervation/${reservation.id}`}
                   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
