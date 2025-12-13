@@ -39,7 +39,7 @@ export const RezervationDetailPage: React.FC = () => {
 
   const handleCancel = () => {
     setModalOpen(false);
-    navigate("/reservation");
+    navigate("/reservationsList");
   };
 
   const handlePayment = () => {
@@ -47,7 +47,7 @@ export const RezervationDetailPage: React.FC = () => {
   };
 
   const handleEdit = () => {
-    navigate(`/rezervation/${reservation.id}/edit`);
+    navigate(`/reservation/${reservation.id}/edit`);
   };
 
   return (
@@ -101,7 +101,7 @@ export const RezervationDetailPage: React.FC = () => {
 
           <div className="flex justify-between mt-6">
             <Link
-              to="/reservation"
+              to="/reservationsList"
               className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
             >
               Grįžti

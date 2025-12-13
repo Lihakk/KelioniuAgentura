@@ -1,71 +1,137 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import { stripePromise } from "../../utils/stripe";
+import { GetReservationById } from "../../api/reservation/GetReservationById";
+import { apiClient } from "../../api/AxiosInstace";
+import type { Reservation } from "../../types/Reservation";
 
-type Reservation = {
-  id: number;
-  tripName: string;
-  date: string;
-  people: number;
-  imageUrl: string;
-  isPaid: boolean;
+type PaymentFormProps = {
+  clientSecret: string;
+  reservationId: number;
 };
 
-// Sample data (replace with API)
-const reservationsData: Reservation[] = [
-  {
-    id: 1,
-    tripName: "Kelionė į Graikiją",
-    date: "2025-06-15",
-    people: 2,
-    imageUrl: "https://images.unsplash.com/photo-1580579628597-4229342c5c99",
-    isPaid: false,
-  },
-  {
-    id: 2,
-    tripName: "Savaitgalis Paryžiuje",
-    date: "2025-07-03",
-    people: 4,
-    imageUrl: "https://images.unsplash.com/photo-1502602898657-3e91760c0337",
-    isPaid: true,
-  },
-];
+const PaymentForm: React.FC<PaymentFormProps> = ({
+  clientSecret,
+  reservationId,
+}) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) return;
+
+    setLoading(true);
+    setError(null);
+
+    const card = elements.getElement(CardElement);
+    if (!card) {
+      setError("Kortelės forma neparuošta");
+      setLoading(false);
+      return;
+    }
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card,
+      },
+    });
+
+    if (result.error) {
+      setError(result.error.message ?? "Mokėjimas nepavyko");
+      setLoading(false);
+      return;
+    }
+
+    if (result.paymentIntent?.status === "succeeded") {
+      await apiClient.post("/payment/mark-paid", {
+        reservationId,
+      });
+      navigate(`/reservation/${reservationId}`);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <CardElement
+        options={{
+          hidePostalCode: true,
+          style: {
+            base: {
+              fontSize: "16px",
+            },
+          },
+        }}
+      />
+
+      {error && (
+        <p className="text-red-600 text-sm font-medium text-center">{error}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={!stripe || loading}
+        className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+      >
+        {loading ? "Apmokėjimas..." : "Sumokėti"}
+      </button>
+    </form>
+  );
+};
 
 export const PaymentPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [reservations, setReservations] = useState(reservationsData);
-  const [loading, setLoading] = useState(false);
 
-  const reservation = reservations.find((r) => r.id === Number(id));
-  const [formData, setFormData] = useState({
-    cardNumber: "",
-    expiry: "",
-    cvv: "",
-  });
+  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!reservation)
+  useEffect(() => {
+    const initPayment = async () => {
+      try {
+        const reservationData = await GetReservationById(Number(id));
+        setReservation(reservationData);
+
+        const response = await apiClient.post("/Payment/create-intent", {
+          reservationId: reservationData.id,
+        });
+
+        setClientSecret(response.data.clientSecret);
+      } catch (err) {
+        console.error("Nepavyko inicijuoti mokėjimo", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initPayment();
+  }, [id]);
+
+  if (loading) {
     return (
-      <p className="text-center mt-12 text-gray-500">Rezervacija nerasta.</p>
+      <p className="text-center mt-12 text-gray-500">Kraunamas mokėjimas...</p>
     );
+  }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handlePayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    // Simulate payment delay
-    setTimeout(() => {
-      // Update reservation as paid
-      setReservations((prev) =>
-        prev.map((r) => (r.id === reservation.id ? { ...r, isPaid: true } : r))
-      );
-      setLoading(false);
-      navigate(`/rezervation/${reservation.id}`);
-    }, 1500);
-  };
+  if (!reservation || !clientSecret) {
+    return (
+      <p className="text-center mt-12 text-red-600">
+        Nepavyko inicijuoti mokėjimo.
+      </p>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
@@ -73,60 +139,34 @@ export const PaymentPage: React.FC = () => {
         Mokėjimas už rezervaciją
       </h1>
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden p-6 flex flex-col gap-6">
+      <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col gap-6">
         <div>
-          <h2 className="font-bold text-xl mb-2">{reservation.tripName}</h2>
-          <p>
-            <span className="font-semibold">Data:</span> {reservation.date}
-          </p>
+          <h2 className="font-bold text-xl mb-2">
+            {reservation.reservationTrip.title}
+          </h2>
           <p>
             <span className="font-semibold">Keliautojų skaičius:</span>{" "}
-            {reservation.people}
+            {reservation.travelers.length}
           </p>
           <p>
             <span className="font-semibold">Bendra suma:</span> €
-            {reservation.people * 100}
+            {reservation.totalAmount}
           </p>
         </div>
 
-        <form onSubmit={handlePayment} className="flex flex-col gap-4">
-          <input
-            type="text"
-            name="cardNumber"
-            placeholder="Kortelės numeris"
-            value={formData.cardNumber}
-            onChange={handleChange}
-            className="p-2 border rounded-md"
-            required
+        <Elements stripe={stripePromise}>
+          <PaymentForm
+            clientSecret={clientSecret}
+            reservationId={reservation.id}
           />
-          <div className="flex gap-4">
-            <input
-              type="text"
-              name="expiry"
-              placeholder="Galiojimo data (MM/YY)"
-              value={formData.expiry}
-              onChange={handleChange}
-              className="p-2 border rounded-md flex-1"
-              required
-            />
-            <input
-              type="text"
-              name="cvv"
-              placeholder="CVV"
-              value={formData.cvv}
-              onChange={handleChange}
-              className="p-2 border rounded-md w-24"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
-          >
-            {loading ? "Apmokėjimas..." : "Sumokėti"}
-          </button>
-        </form>
+        </Elements>
+
+        <button
+          onClick={() => navigate(`/reservation/${reservation.id}`)}
+          className="text-sm text-gray-500 hover:underline self-center"
+        >
+          Grįžti atgal
+        </button>
       </div>
     </div>
   );

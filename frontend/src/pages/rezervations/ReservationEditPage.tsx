@@ -10,9 +10,9 @@ import { AddTraveler } from "../../api/reservation/AddTraveler";
 import { DeleteTraveler } from "../../api/reservation/DeleteTraveler";
 import { UpdateReservation } from "../../api/reservation/UpdateReservation";
 
-// UI-only extension (not sent to backend)
 type TravelerWithMeta = (Traveler | CreateTraveler) & {
   _markedForDelete?: boolean;
+  _uiId: string;
 };
 
 export const RezervationEditPage: React.FC = () => {
@@ -21,17 +21,9 @@ export const RezervationEditPage: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [reservation, setReservation] = useState<Reservation | null>(null);
-
-  const [formData, setFormData] = useState({
-    date: "",
-    people: 1,
-  });
-
+  const [error, setError] = useState("");
   const [travelers, setTravelers] = useState<TravelerWithMeta[]>([]);
 
-  // ---------------------------
-  // Fetch reservation
-  // ---------------------------
   useEffect(() => {
     const fetchReservation = async () => {
       try {
@@ -39,19 +31,15 @@ export const RezervationEditPage: React.FC = () => {
 
         setReservation(data);
 
-        setFormData({
-          date: data.date?.split("T")[0] ?? "",
-          people: data.travelers?.length || 1,
-        });
-
         setTravelers(
           (data.travelers || []).map((t) => ({
             ...t,
             birthDate: t.birthDate?.split("T")[0] ?? "",
+            _uiId: crypto.randomUUID(),
           }))
         );
-      } catch (error) {
-        console.error("Could not fetch reservation details.", error);
+      } catch (err) {
+        console.error("Could not fetch reservation details.", err);
       } finally {
         setLoading(false);
       }
@@ -60,9 +48,6 @@ export const RezervationEditPage: React.FC = () => {
     fetchReservation();
   }, [id]);
 
-  // ---------------------------
-  // Loading / Not found
-  // ---------------------------
   if (loading) {
     return (
       <p className="text-center mt-12 text-gray-500">Kraunama rezervacija...</p>
@@ -75,80 +60,73 @@ export const RezervationEditPage: React.FC = () => {
     );
   }
 
-  // ---------------------------
-  // Handlers
-  // ---------------------------
   const handleTravelerChange = (
-    index: number,
+    uiId: string,
     field: keyof CreateTraveler,
     value: string
   ) => {
-    setTravelers((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
-        [field]: value,
-      };
-      return updated;
-    });
+    setTravelers((prev) =>
+      prev.map((t) => (t._uiId === uiId ? { ...t, [field]: value } : t))
+    );
   };
 
   const addTraveler = () => {
-    const newTraveler: TravelerWithMeta = {
-      firstName: "",
-      lastName: "",
-      birthDate: "",
-      documentNumber: "",
-      reservationId: reservation.id,
-    };
-
-    setTravelers((prev) => [...prev, newTraveler]);
+    setTravelers((prev) => [
+      ...prev,
+      {
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        documentNumber: "",
+        reservationId: reservation.id,
+        _uiId: crypto.randomUUID(),
+      },
+    ]);
   };
 
-  const markTravelerForDelete = (index: number) => {
+  const markTravelerForDelete = (uiId: string) => {
     setTravelers((prev) =>
-      prev.map((t, i) => (i === index ? { ...t, _markedForDelete: true } : t))
+      prev.map((t) => (t._uiId === uiId ? { ...t, _markedForDelete: true } : t))
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const activeTravelers = travelers.filter((t) => !t._markedForDelete);
+
+    if (activeTravelers.length === 0) {
+      setError("Rezervacija neįmanoma – turi būti bent vienas keliautojas.");
+      return;
+    }
+
+    setError("");
+
     try {
-      // 1️⃣ Delete marked travelers
       for (const traveler of travelers) {
         if ("id" in traveler && traveler._markedForDelete) {
           await DeleteTraveler(traveler.id);
         }
       }
 
-      // 2️⃣ Add new travelers
       for (const traveler of travelers) {
         if (!("id" in traveler) && !traveler._markedForDelete) {
           await AddTraveler(traveler);
         }
       }
 
-      // 3️⃣ Update reservation metadata
       await UpdateReservation({
         id: reservation.id,
         status: reservation.status,
         payment: reservation.payment,
       });
 
-      navigate(`/rezervation/${reservation.id}`);
-    } catch (error) {
-      console.error("Error saving reservation:", error);
+      navigate(`/reservation/${reservation.id}`);
+    } catch (err) {
+      console.error("Error saving reservation:", err);
     }
   };
 
-  const handleCancelReservation = () => {
-    navigate(`/reservation`);
-  };
-
-  // ---------------------------
-  // JSX
-  // ---------------------------
   return (
     <div className="max-w-3xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center mb-8">
@@ -159,7 +137,6 @@ export const RezervationEditPage: React.FC = () => {
         onSubmit={handleSubmit}
         className="bg-white rounded-lg shadow-lg p-6 flex flex-col gap-4"
       >
-        {/* Travelers */}
         <div>
           <h2 className="text-2xl font-semibold mb-4">
             Keliautojų informacija
@@ -169,7 +146,7 @@ export const RezervationEditPage: React.FC = () => {
             .filter((t) => !t._markedForDelete)
             .map((traveler, index) => (
               <div
-                key={index}
+                key={traveler._uiId}
                 className="mb-6 p-4 border rounded-lg bg-gray-50"
               >
                 <div className="flex justify-between items-center mb-3">
@@ -178,7 +155,7 @@ export const RezervationEditPage: React.FC = () => {
                   </h3>
                   <button
                     type="button"
-                    onClick={() => markTravelerForDelete(index)}
+                    onClick={() => markTravelerForDelete(traveler._uiId)}
                     className="px-3 py-1 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors text-sm"
                   >
                     Pašalinti
@@ -192,7 +169,11 @@ export const RezervationEditPage: React.FC = () => {
                       type="text"
                       value={traveler.firstName}
                       onChange={(e) =>
-                        handleTravelerChange(index, "firstName", e.target.value)
+                        handleTravelerChange(
+                          traveler._uiId,
+                          "firstName",
+                          e.target.value
+                        )
                       }
                       className="mt-1 p-2 border rounded-md"
                       required
@@ -205,7 +186,11 @@ export const RezervationEditPage: React.FC = () => {
                       type="text"
                       value={traveler.lastName}
                       onChange={(e) =>
-                        handleTravelerChange(index, "lastName", e.target.value)
+                        handleTravelerChange(
+                          traveler._uiId,
+                          "lastName",
+                          e.target.value
+                        )
                       }
                       className="mt-1 p-2 border rounded-md"
                       required
@@ -218,7 +203,11 @@ export const RezervationEditPage: React.FC = () => {
                       type="date"
                       value={traveler.birthDate}
                       onChange={(e) =>
-                        handleTravelerChange(index, "birthDate", e.target.value)
+                        handleTravelerChange(
+                          traveler._uiId,
+                          "birthDate",
+                          e.target.value
+                        )
                       }
                       className="mt-1 p-2 border rounded-md"
                       required
@@ -232,7 +221,7 @@ export const RezervationEditPage: React.FC = () => {
                       value={traveler.documentNumber}
                       onChange={(e) =>
                         handleTravelerChange(
-                          index,
+                          traveler._uiId,
                           "documentNumber",
                           e.target.value
                         )
@@ -254,11 +243,16 @@ export const RezervationEditPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Actions */}
+        {error && (
+          <p className="text-red-600 text-sm font-medium text-center">
+            {error}
+          </p>
+        )}
+
         <div className="flex justify-between mt-4 pt-4 border-t">
           <button
             type="button"
-            onClick={() => navigate(`/rezervation/${reservation.id}`)}
+            onClick={() => navigate(`/reservation/${reservation.id}`)}
             className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
           >
             Atšaukti

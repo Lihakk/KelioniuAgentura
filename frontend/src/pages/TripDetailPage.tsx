@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import axios from "axios";
 
 interface Trip {
   id: number;
@@ -37,10 +37,12 @@ export const TripDetailPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await axios.get(`http://localhost:5050/api/admin/trips/${id}`);
+
+      const response = await axios.get(
+        `http://localhost:5050/api/admin/trips/${id}`
+      );
       console.log("Trip details loaded:", response.data);
-      
+
       setTrip(response.data);
     } catch (error: any) {
       console.error("Error fetching trip details:", error);
@@ -56,10 +58,10 @@ export const TripDetailPage: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('lt-LT', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString("lt-LT", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -109,8 +111,8 @@ export const TripDetailPage: React.FC = () => {
   return (
     <div className="max-w-5xl mx-auto py-12 px-4">
       {/* Grįžimo mygtukas */}
-      <Link 
-        to="/trips" 
+      <Link
+        to="/trips"
         className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
       >
         <svg
@@ -135,10 +137,10 @@ export const TripDetailPage: React.FC = () => {
       </h1>
 
       {/* Nuotrauka */}
-      <img 
-        src={getImageUrl(trip.id)} 
-        alt={trip.name} 
-        className="w-full h-[500px] object-cover rounded-lg shadow-2xl mb-8" 
+      <img
+        src={getImageUrl(trip.id)}
+        alt={trip.name}
+        className="w-full h-[500px] object-cover rounded-lg shadow-2xl mb-8"
       />
 
       {/* Informacijos kortelė */}
@@ -163,7 +165,12 @@ export const TripDetailPage: React.FC = () => {
               <span className="font-semibold text-gray-700">Trukmė</span>
             </div>
             <p className="text-2xl font-bold text-gray-900">
-              {trip.duration} {trip.duration === 1 ? "diena" : trip.duration < 10 ? "dienos" : "dienų"}
+              {trip.duration}{" "}
+              {trip.duration === 1
+                ? "diena"
+                : trip.duration < 10
+                ? "dienos"
+                : "dienų"}
             </p>
           </div>
 
@@ -188,9 +195,7 @@ export const TripDetailPage: React.FC = () => {
               {formatDate(trip.startDate)}
             </p>
             <p className="text-sm text-gray-500">iki</p>
-            <p className="text-lg text-gray-900">
-              {formatDate(trip.endDate)}
-            </p>
+            <p className="text-lg text-gray-900">{formatDate(trip.endDate)}</p>
           </div>
 
           <div className="text-center">
@@ -210,9 +215,7 @@ export const TripDetailPage: React.FC = () => {
               </svg>
               <span className="font-semibold text-gray-700">Kaina</span>
             </div>
-            <p className="text-3xl font-bold text-blue-600">
-              €{trip.price}
-            </p>
+            <p className="text-3xl font-bold text-blue-600">€{trip.price}</p>
             <p className="text-sm text-gray-500">vienam asmeniui</p>
           </div>
         </div>
@@ -267,8 +270,8 @@ export const TripDetailPage: React.FC = () => {
 
         {/* Rezervacijos mygtukas */}
         <div className="text-center">
-          <Link 
-            to={`/rezervation/create`} 
+          <Link
+            to={`/reservation/create/${trip.id}`}
             className="inline-block bg-blue-600 text-white font-bold px-12 py-4 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
           >
             Rezervuoti Dabar
