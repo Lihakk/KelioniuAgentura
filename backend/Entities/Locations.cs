@@ -47,5 +47,7 @@ public class PointOfInterest
         public int RouteId { get; set; }
         [JsonIgnore]
         public Route? Route { get; set; } 
+
+        public bool IsSelected { get; set; } = true;
     }
 }

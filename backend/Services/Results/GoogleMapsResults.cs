@@ -30,6 +30,7 @@ namespace backend.Services.Results
         public string CityName { get; set; }
         public CoordinatesResult Location { get; set; }
         public double DistanceFromStartKm { get; set; }
+        public string Country { get; set; }
         public List<PlaceResult> SuggestedAttractions { get; set; } = new List<PlaceResult>();
     }
 }

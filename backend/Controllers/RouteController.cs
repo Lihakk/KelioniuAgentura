@@ -19,16 +19,12 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // --- 1. GENERATE & SAVE (The Money Maker) ---
         [HttpPost("generate")]
         public async Task<IActionResult> GenerateRoute([FromQuery] string from, [FromQuery] string to, [FromQuery] int interval = 300)
         {
-            // USE THE NEW METHOD HERE
             var plan = await _googleMapsService.GenerateComplexTripAsync(from, to, interval);
-            
             if (plan == null) return BadRequest("Could not calculate route.");
 
-            // Calculate simple values
             double distKm = double.TryParse(plan.TotalDistance?.Replace(" km", "").Replace(",", ""), out var d) ? d : 0;
             int estimatedDays = (int)Math.Ceiling(distKm / 500); 
             if (estimatedDays < 1) estimatedDays = 1;
@@ -42,20 +38,46 @@ namespace backend.Controllers
                 DurationDays = estimatedDays,
                 EncodedPolyline = plan.EncodedPolyline,
                 IsDraft = true, 
-                Season = "Summer", 
-
-                Stops = plan.SuggestedStops.SelectMany(s => s.SuggestedAttractions.Select(a => new PointOfInterest
-                {
-                    Name = a.Name,
-                    Type = "Tourist Attraction",
-                    Address = a.Address ?? $"Near {s.CityName}",
-                    Rating = a.Rating,
-                    Latitude = a.Latitude,
-                    Longitude = a.Longitude,
-                    IsPaidTicket = false, 
-                    OpeningHours = "9:00 - 18:00"
-                })).ToList()
+                Season = "Summer"
             };
+
+            foreach (var stop in plan.SuggestedStops)
+            {
+                var cityEntity = await _context.Cities.FirstOrDefaultAsync(c => c.Name == stop.CityName);
+                
+                if (cityEntity == null)
+                {
+                    cityEntity = new City 
+                    { 
+                        Name = stop.CityName, 
+                        Country = stop.Country ?? "Unknown", 
+                        Coordinates = $"{stop.Location.Latitude},{stop.Location.Longitude}" 
+                    };
+                    _context.Cities.Add(cityEntity);
+                    await _context.SaveChangesAsync(); // Save to generate ID
+                }
+
+                int count = 0;
+                foreach (var attr in stop.SuggestedAttractions)
+                {
+                    count++;
+                    newRoute.Stops.Add(new backend.Entities.PointOfInterest
+                    {
+                        Name = attr.Name,
+                        Type = "Tourist Attraction",
+                        Address = attr.Address ?? $"Near {stop.CityName}",
+                        Rating = attr.Rating,
+                        Latitude = attr.Latitude,
+                        Longitude = attr.Longitude,
+                        IsPaidTicket = false,
+                        OpeningHours = "9:00 - 18:00",
+                        
+                        CityId = cityEntity.Id,
+
+                        IsSelected = count <= 3 
+                    });
+                }
+            }
 
             _context.Routes.Add(newRoute);
             await _context.SaveChangesAsync();
@@ -63,7 +85,6 @@ namespace backend.Controllers
             return Ok(new { Message = "Route generated and saved!", RouteId = newRoute.Id });
         }
 
-        // --- 2. GET ONE ROUTE ---
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRoute(int id)
         {
@@ -75,7 +96,6 @@ namespace backend.Controllers
             return Ok(route);
         }
 
-        // --- 3. UPDATE ROUTE ---
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRoute(int id, [FromBody] backend.Entities.Route updatedData)
         {
@@ -94,22 +114,95 @@ namespace backend.Controllers
             return Ok(new { Message = "Route saved successfully." });
         }
 
-        // --- 4. LIST ALL ROUTES ---
         [HttpGet]
         public async Task<IActionResult> GetAllRoutes()
         {
             return Ok(await _context.Routes.Include(r => r.Stops).ToListAsync());
         }
 
-        // --- 5. DELETE ROUTE ---
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRoute(int id)
         {
+            bool isUsed = await _context.Trips.AnyAsync(t => t.RouteId == id);
+
+            if (isUsed)
+            {
+                return BadRequest(new { Message = "Negalima atšaukti: Maršrutas naudojamas suplanuotose kelionėse." });
+            }
+
             var route = await _context.Routes.FindAsync(id);
-            if (route == null) return NotFound();
+            if (route == null) return NotFound("Maršrutas nerastas.");
+
             _context.Routes.Remove(route);
             await _context.SaveChangesAsync();
-            return Ok(new { Message = "Deleted." });
+
+            return Ok(new { Message = "Maršrutas sėkmingai atšauktas." });
+        }
+        
+        [HttpPost("{id}/recalculate")]
+        public async Task<IActionResult> RecalculateRoute(int id)
+        {
+            var route = await _context.Routes
+                .Include(r => r.Stops)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (route == null) return NotFound("Route not found");
+
+            var origin = new backend.Services.Results.CoordinatesResult {};
+
+            var startCoords = await _googleMapsService.GetCoordinatesAsync(route.StartCity);
+            var endCoords = await _googleMapsService.GetCoordinatesAsync(route.EndCity);
+
+            if (startCoords == null || endCoords == null) return BadRequest("Could not locate start/end cities.");
+
+            var waypoints = route.Stops
+                .Where(s => s.IsSelected)
+                .Select(s => new backend.Services.Results.CoordinatesResult 
+                { 
+                    Latitude = s.Latitude, 
+                    Longitude = s.Longitude 
+                })
+                .ToList();
+
+            var newPlan = await _googleMapsService.RecalculatePathAsync(startCoords, endCoords, waypoints);
+            
+            if (newPlan == null) return BadRequest("Google failed to calculate path.");
+
+            route.EncodedPolyline = newPlan.EncodedPolyline;
+            
+            // Update distance/duration if they changed significantly
+            double newDist = double.TryParse(newPlan.TotalDistance?.Replace(" km", "").Replace(",", ""), out var d) ? d : route.DistanceKm;
+            route.DistanceKm = newDist;
+            
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                Message = "Route recalculated!", 
+                EncodedPolyline = route.EncodedPolyline,
+                DistanceKm = route.DistanceKm,
+                DurationText = newPlan.TotalDuration
+            });
+        }
+        
+        [HttpGet("estimate-info")]
+        public async Task<IActionResult> EstimateInfo([FromQuery] string from, [FromQuery] string to)
+        {
+            var plan = await _googleMapsService.GetSimpleRouteAsync(from, to);
+            
+            if (plan == null) return BadRequest("Nepavyko rasti maršruto tarp šių miestų.");
+
+            double distKm = double.TryParse(plan.TotalDistance?.Replace(" km", "").Replace(",", ""), out var d) ? d : 0;
+            
+            int estimatedDays = (int)Math.Max(1, Math.Ceiling(distKm / 400)); 
+
+            return Ok(new 
+            { 
+                DistanceKm = distKm,
+                DurationText = plan.TotalDuration, 
+                EstimatedDays = estimatedDays,
+                StartCity = from,
+                EndCity = to
+            });
         }
     }
 }
