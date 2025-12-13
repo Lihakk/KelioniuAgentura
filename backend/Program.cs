@@ -39,6 +39,12 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.Configure<StripeSettings>(
+    builder.Configuration.GetSection("Stripe"));
+
+Stripe.StripeConfiguration.ApiKey =
+    builder.Configuration["Stripe:SecretKey"];
+
 
 var jwtSettingsSection = builder.Configuration.GetSection("JwtSettings");
 
@@ -93,6 +99,7 @@ app.UseCors("FrontendAccessPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
