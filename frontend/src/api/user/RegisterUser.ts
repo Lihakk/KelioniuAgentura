@@ -5,7 +5,7 @@ export const RegisterUser = async (
   registerInfo: RegisterUserDetails
 ): Promise<void> => {
   try {
-    await apiClient.post("User/Register", registerInfo);
+    await apiClient.post("/api/User/Register", registerInfo);
   } catch {
     throw new Error("Could not register the user");
   }

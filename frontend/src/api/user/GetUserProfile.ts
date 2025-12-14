@@ -3,7 +3,7 @@ import { apiClient } from "../AxiosInstace";
 
 export const GetUserProfile = async (): Promise<UserProfile> => {
   try {
-    const res = await apiClient.get("User/Profile");
+    const res = await apiClient.get("/api/User/Profile");
     return res.data;
   } catch {
     throw new Error("Could not get user profile");

@@ -21,8 +21,9 @@ import { RoutesDashboardPage } from "./pages/admin/routes/RoutesDashboardPage";
 import { EstimateTimePage } from "./pages/admin/routes/EstimateTimePage";
 import { RoutePreviewPage } from "./pages/admin/routes/RoutePreviewPage";
 import { RouteEditPage } from "./pages/admin/routes/RouteEditPage";
-import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage"; // Import the new page
-import { TripDashboardPage } from "./pages/admin/trip/TripDashboardPage";
+import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage"; 
+import { RouteCancelPage } from "./pages/admin/routes/RouteCancelPage";
+//import { TripDashboardPage } from "./pages/admin/trip/TripDashboardPage";
 import { AdminTripListPage } from "./pages/admin/trip/AdminTripListPage"; // Kelias atrodo teisingas, tikrinkite eksportąimport { RezervationListPage } from "./pages/rezervations/RezervationListPage";
 import { RezervationDetailPage } from "./pages/rezervations/RezervationDetailPage";
 import { RezervationEditPage } from "./pages/rezervations/ReservationEditPage";
@@ -53,15 +54,13 @@ function App() {
           <Route path="reservations" element={<ViewReservationsPage />} />
           <Route path="routes" element={<RoutesDashboardPage />} />
           <Route path="routes/create" element={<RouteCreatePage />} />
-          <Route path="routes/preview" element={<RoutePreviewPage />} />
-          <Route path="routes/edit" element={<RouteEditPage />} />
-          <Route path="routes/estimate-time" element={<EstimateTimePage />} />
+          <Route path="routes/edit/:id" element={<RouteEditPage />} />
+          <Route path="routes/preview/:id" element={<RoutePreviewPage />} />
+          <Route path="routes/estimate" element={<EstimateTimePage />} />
+          <Route path="routes/cancel/:id" element={<RouteCancelPage />} />
           <Route path="trip" element={<AdminTripListPage />} />
           <Route path="trip/create" element={<AddTripPage />} />
           <Route path="trip/edit/:id" element={<ModifyTripPage />} />
-
-        
-          
         </Route>
         <Route path="/rezervation/:id" element={<RezervationDetailPage />} />
         <Route path="/rezervation/:id/edit" element={<RezervationEditPage />} />
