@@ -46,6 +46,10 @@ public class Route
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal Price { get; set; }
+        public int AvailableSpots {get; set; } = 20;
+        public int TotalSpots {get; set;} = 20;
+         public string? MainImage { get; set; }
+        public string? GalleryImages { get; set; }
 
         public int RouteId { get; set; }
         public Route Route { get; set; }

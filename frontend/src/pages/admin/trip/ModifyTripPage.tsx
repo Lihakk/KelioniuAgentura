@@ -24,6 +24,8 @@ interface TripData {
   endDate: string;
   price: number;
   routeId: number;
+  totalSpots: number;
+  availableSpots: number;
 }
 
 export const ModifyTripPage: React.FC = () => {
@@ -37,7 +39,9 @@ export const ModifyTripPage: React.FC = () => {
     startDate: '',
     endDate: '',
     price: 0,
-    routeId: 0, 
+    routeId: 0,
+    totalSpots: 20,
+    availableSpots:20
   });
 
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -46,69 +50,69 @@ export const ModifyTripPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    
-    setRoutes([
-      { id: 1, name: 'Graikijos turas' },
-      { id: 2, name: 'Prancūzijos kelionė' },
-      { id: 3, name: 'Italijos maršrutas' },
-    ]);
-    
-    
-    if (id) {
-      const tripId = parseInt(id);
-      if (!isNaN(tripId)) {
-        fetchTrip(tripId);
-      } else {
-        setError('Neteisingas kelionės ID formatas.');
-        setLoadingTrip(false);
-      }
-    }
-  }, [id]);
-
-  const fetchTrip = async (tripId: number) => {
+  const fetchRoutes = async () => {
     try {
-      setLoadingTrip(true);
-      const url = API_ENDPOINTS.TRIPS.GET_ONE(tripId); 
-
-      const response = await axios.get(url);
-      
-      const trip = response.data; 
-
-     
-      const startDate = new Date(trip.startDate).toISOString().split('T')[0];
-      const endDate = new Date(trip.endDate).toISOString().split('T')[0];
-      
-      setFormData({
-        name: trip.name,
-        description: trip.description,
-        startDate: startDate,
-        endDate: endDate,
-        price: parseFloat(trip.price) || 0, 
-        routeId: parseInt(trip.routeId) || 0, 
-      });
-
+      const response = await axios.get('http://localhost:5050/api/Route');
+      setRoutes(response.data);
     } catch (error) {
-      console.error('Klaida gaunant kelionės duomenis:', error);
-      setError('Nepavyko užkrauti kelionės duomenų.');
-    } finally {
+      console.error('Error fetching routes:', error);
+      setError('Nepavyko užkrauti maršrutų');
+    }
+  };
+  
+  fetchRoutes();
+  
+  if (id) {
+    // ... existing trip fetch logic
+    const tripId = parseInt(id);
+    if (!isNaN(tripId)) {
+      fetchTrip(tripId);
+    } else {
+      setError('Neteisingas kelionės ID formatas.');
       setLoadingTrip(false);
     }
-  };
+  }
+}, [id]);
+
+  const fetchTrip = async (tripId: number) => {
+  try {
+    setLoadingTrip(true);
+    const url = API_ENDPOINTS.TRIPS.GET_ONE(tripId);
+    const response = await axios.get(url);
+    const trip = response.data;
+    
+    const startDate = new Date(trip.startDate).toISOString().split('T')[0];
+    const endDate = new Date(trip.endDate).toISOString().split('T')[0];
+    
+    setFormData({
+      name: trip.name,
+      description: trip.description,
+      startDate: startDate,
+      endDate: endDate,
+      price: parseFloat(trip.price) || 0,
+      routeId: parseInt(trip.routeId) || 0,
+      totalSpots: parseInt(trip.totalSpots) || 0,           // NAUJAS
+      availableSpots: parseInt(trip.availableSpots) || 0,   // NAUJAS
+    });
+  } catch (error) {
+    console.error('Klaida gaunant kelionės duomenis:', error);
+    setError('Nepavyko užkrauti kelionės duomenų.');
+  } finally {
+    setLoadingTrip(false);
+  }
+};
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      
-      [name]: name === 'price' 
-        ? parseFloat(value) || 0 
-        : name === 'routeId' 
-        ? parseInt(value) || 0 
-        : value,
-    }));
-  };
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: name === 'price' || name === 'routeId' || name === 'totalSpots' || name === 'availableSpots'
+      ? parseFloat(value) || 0 
+      : value,
+  }));
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -292,6 +296,45 @@ export const ModifyTripPage: React.FC = () => {
               ))}
             </select>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label htmlFor="totalSpots" className="block text-sm font-medium text-gray-700">
+      Viso vietų <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="number"
+      id="totalSpots"
+      name="totalSpots"
+      required
+      min="1"
+      value={formData.totalSpots}
+      onChange={handleChange}
+      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      placeholder="Pvz: 40"
+    />
+  </div>
+
+  <div>
+    <label htmlFor="availableSpots" className="block text-sm font-medium text-gray-700">
+      Laisvos vietos <span className="text-red-500">*</span>
+    </label>
+    <input
+      type="number"
+      id="availableSpots"
+      name="availableSpots"
+      required
+      min="0"
+      max={formData.totalSpots}
+      value={formData.availableSpots}
+      onChange={handleChange}
+      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      placeholder="Pvz: 35"
+    />
+    <p className="mt-1 text-xs text-gray-500">
+      Maksimaliai: {formData.totalSpots}
+    </p>
+  </div>
+</div>
         </div>
 
         {/* Submit Button */}

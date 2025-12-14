@@ -34,6 +34,8 @@ import ProfileEditPage from "./pages/ProfileEditPage";
 import ProfileApprovalPage from "./pages/ProfileApprovalPage";
 import { RezervationListPage } from "./pages/rezervations/RezervationListPage";
 
+import { UserPreferencesPage } from "./pages/UserPreferencesPage";
+
 function App() {
   return (
     <Router>
@@ -50,6 +52,10 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/profile/approve" element={<ProfileApprovalPage />} />
+        
+        {/* ✅ RECOMMENDATIONS ROUTES */}
+        <Route path="/preferences" element={<UserPreferencesPage />} />
+        
         {/* Nested Admin Routes */}
         <Route path="/admin" element={<AdminPage />}>
           <Route path="reservations" element={<ViewReservationsPage />} />
