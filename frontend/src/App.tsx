@@ -32,6 +32,7 @@ import { ReservationCreationPage } from "./pages/rezervations/ReservationCreatio
 import ProfilePage from "./pages/ProfilePage";
 import ProfileEditPage from "./pages/ProfileEditPage";
 import ProfileApprovalPage from "./pages/ProfileApprovalPage";
+import { RezervationListPage } from "./pages/rezervations/RezervationListPage";
 
 function App() {
   return (
@@ -42,8 +43,8 @@ function App() {
         <Route path="/" element={<MainPage />} />
         <Route path="/trips" element={<TripsPage />} />
         <Route path="/trip/:tripId" element={<TripDetailPage />} />
-        <Route path="/reservation/:tripId" element={<ReservationPage />} />
-        <Route path="/payment/:tripId" element={<StripeCheckoutPage />} />
+        {/* <Route path="/reservation/:tripId" element={<ReservationPage />} /> */}
+        {/* <Route path="/payment/:tripId" element={<StripeCheckoutPage />} /> */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/profile" element={<ProfilePage />} />
@@ -62,11 +63,12 @@ function App() {
           <Route path="trip/create" element={<AddTripPage />} />
           <Route path="trip/edit/:id" element={<ModifyTripPage />} />
         </Route>
-        <Route path="/rezervation/:id" element={<RezervationDetailPage />} />
-        <Route path="/rezervation/:id/edit" element={<RezervationEditPage />} />
+        <Route path="/reservationsList" element={<RezervationListPage />} />
+        <Route path="/reservation/:id" element={<RezervationDetailPage />} />
+        <Route path="/reservation/:id/edit" element={<RezervationEditPage />} />
         <Route path="/payment/:id" element={<PaymentPage />} />
         <Route
-          path="/rezervation/create"
+          path="/reservation/create/:tripId"
           element={<ReservationCreationPage />}
         />
       </Routes>

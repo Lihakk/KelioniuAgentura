@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace backend.Entities
 {
     public enum ReservationStatus { Created, Cancelled, Confirmed }
-    public enum PaymentStatus { Paid, Pending, Unpaid }
+    public enum PaymentStatus { Paid, Pending, Unpaid, Refunded }
 
     public class Reservation
     {
@@ -39,10 +39,12 @@ namespace backend.Entities
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
-        public string Method { get; set; }
-        public string Currency { get; set; }
-        public PaymentStatus Status { get; set; }
+        public DateTime? Date { get; set; }
+        public string Method { get; set; } 
+        public string Currency { get; set; } 
+        public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
+        
+        public string? StripePaymentIntentId { get; set; } = null!;
 
         public int ReservationId { get; set; }
         public Reservation Reservation { get; set; }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 interface Trip {
   id: number;
@@ -27,10 +28,10 @@ export const TripsPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await axios.get("http://localhost:5050/api/admin/trips");
       console.log("Trips loaded:", response.data);
-      
+
       setTrips(response.data);
     } catch (error: any) {
       console.error("Error fetching trips:", error);
@@ -115,9 +116,7 @@ export const TripsPage: React.FC = () => {
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             Kelionių nerasta
           </h3>
-          <p className="text-gray-600">
-            Šiuo metu nėra prieinamų kelionių.
-          </p>
+          <p className="text-gray-600">Šiuo metu nėra prieinamų kelionių.</p>
         </div>
       </div>
     );
@@ -126,7 +125,7 @@ export const TripsPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto py-12 px-4">
       <h1 className="text-4xl font-bold text-center mb-8">Visos Kelionės</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {trips.map((trip, index) => (
           <div
@@ -140,7 +139,7 @@ export const TripsPage: React.FC = () => {
                 className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
               />
             </Link>
-            
+
             <div className="p-6">
               <div className="mb-4">
                 <Link to={`/trip/${trip.id}`}>
@@ -168,7 +167,14 @@ export const TripsPage: React.FC = () => {
                       d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <span>{trip.duration} {trip.duration === 1 ? "diena" : trip.duration < 10 ? "dienos" : "dienų"}</span>
+                  <span>
+                    {trip.duration}{" "}
+                    {trip.duration === 1
+                      ? "diena"
+                      : trip.duration < 10
+                      ? "dienos"
+                      : "dienų"}
+                  </span>
                 </div>
                 <div className="font-bold text-blue-600 text-lg">
                   €{trip.price}
@@ -196,10 +202,10 @@ export const TripsPage: React.FC = () => {
                   </svg>
                 </Link>
                 <Link
-                  to={`/rezervation/create`}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+                  to={`/reservation/create/${trip.id}`}
+                  className="inline-block bg-blue-600 text-white font-bold px-12 py-4 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
                 >
-                  Rezervuoti
+                  Rezervuoti Dabar
                 </Link>
               </div>
             </div>

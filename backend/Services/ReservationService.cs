@@ -43,7 +43,6 @@ public class ReservationService : IReservationService
                 Currency = r.Payment.Currency,
                 Method = r.Payment.Method,
                 Status = r.Payment.Status,
-                Date = r.Payment.Date,
                 ReservationId = r.Payment.ReservationId,
             },
             Status = r.Status,
@@ -92,7 +91,6 @@ public class ReservationService : IReservationService
                     Currency = r.Payment.Currency,
                     Method = r.Payment.Method,
                     Status = r.Payment.Status,
-                    Date = r.Payment.Date,
                     ReservationId = r.Payment.ReservationId,
                 },
                 Status = r.Status,
@@ -140,7 +138,6 @@ public class ReservationService : IReservationService
                     Currency = r.Payment.Currency,
                     Method = r.Payment.Method,
                     Status = r.Payment.Status,
-                    Date = r.Payment.Date,
                     ReservationId = r.Payment.ReservationId,
                 },
                 Status = r.Status,
@@ -198,10 +195,9 @@ public class ReservationService : IReservationService
             Payment = new Payment
             {
                 Amount = totalAmount,
-                Currency = "$",
-                Date = DateTime.Now,
-                Method = "",
-                Status = PaymentStatus.Unpaid,
+                Currency = "eur",
+                Method = "card",
+                Status = PaymentStatus.Pending,
             },
             Travelers = travelers,
         };

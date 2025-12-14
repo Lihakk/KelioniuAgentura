@@ -25,7 +25,7 @@ export const RezervationListPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {reservations.map((reservation) => (
             <div
-              key={reservation.reservationTrip.title}
+              key={reservation.reservationTrip.id}
               className="bg-white rounded-lg shadow-lg overflow-hidden group"
             >
               {/* <img
@@ -74,7 +74,7 @@ export const RezervationListPage: React.FC = () => {
                 </p>
 
                 <Link
-                  to={`/rezervation/${reservation.id}`}
+                  to={`/reservation/${reservation.id}`}
                   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-center"
                 >
                   Peržiūrėti
