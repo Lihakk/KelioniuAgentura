@@ -18,6 +18,8 @@ namespace backend.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Traveler> Travelers { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<UserPreferences> UserPreferences { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -110,6 +112,25 @@ namespace backend.Data
                     IsConfirmed = true,
                 }
             );
+
+             modelBuilder.Entity<UserPreferences>(entity =>
+                {
+                    entity.ToTable("UserPreferences");
+                    entity.HasKey(e => e.Id);
+                    
+                    entity.HasOne(e => e.User)
+                        .WithMany()
+                        .HasForeignKey(e => e.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+                    
+                    entity.HasIndex(e => e.UserId).IsUnique();
+                    
+                    entity.Property(e => e.BudgetMin)
+                        .HasColumnType("decimal(18,2)");
+                    
+                    entity.Property(e => e.BudgetMax)
+                        .HasColumnType("decimal(18,2)");
+                });
         }
     }
 }

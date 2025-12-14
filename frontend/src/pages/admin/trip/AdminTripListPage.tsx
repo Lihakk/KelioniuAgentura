@@ -12,6 +12,8 @@ interface Trip {
   duration: number;
   routeId: number;
   routeName?: string;
+  availableSpots: number;
+  totalSpots: number;
 }
 
 export const AdminTripListPage: React.FC = () => {
@@ -41,18 +43,15 @@ export const AdminTripListPage: React.FC = () => {
       
       setTrips(response.data);
     } catch (error: any) {
-      console.error(" Error fetching trips:", error);
-      console.error(" Error response:", error.response);
-      console.error(" Error message:", error.message);
+      console.error("❌ Error fetching trips:", error);
+      console.error("❌ Error response:", error.response);
+      console.error("❌ Error message:", error.message);
       
       if (error.response) {
-        // Backend atsakė su error
         setError(`Backend klaida: ${error.response.status} - ${error.response.data?.message || error.message}`);
       } else if (error.request) {
-        // Request buvo išsiųstas bet nėra atsakymo
         setError("Backend nepasiekiamas. Ar backend'as paleistas?");
       } else {
-        // Kažkas kita
         setError(`Klaida: ${error.message}`);
       }
     } finally {
@@ -70,7 +69,7 @@ export const AdminTripListPage: React.FC = () => {
 
     try {
       const url = `http://localhost:5050/api/admin/trips/${tripToDelete.id}`;
-      console.log("🗑️ Deleting trip:", url);
+      console.log("Deleting trip:", url);
       
       await axios.delete(url);
       
@@ -225,13 +224,11 @@ export const AdminTripListPage: React.FC = () => {
             </p>
             <div className="space-y-2">
               <Link
-                to="/admin/trip/create-new"
+                to="/admin/trip/create"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Pridėti Kelionę
               </Link>
-              <p className="text-xs text-gray-500 mt-4">
-              </p>
             </div>
           </div>
         ) : (
@@ -270,7 +267,7 @@ export const AdminTripListPage: React.FC = () => {
                   </div>
 
                   {/* Details Grid */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 pb-4 border-b border-gray-200">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4 pb-4 border-b border-gray-200">
                     <div>
                       <p className="text-xs text-gray-500">Trukmė</p>
                       <p className="text-sm font-semibold text-gray-900">
@@ -280,6 +277,12 @@ export const AdminTripListPage: React.FC = () => {
                     <div>
                       <p className="text-xs text-gray-500">Kaina</p>
                       <p className="text-sm font-semibold text-gray-900">€{trip.price}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Laisvos vietos</p>
+                      <p className="text-sm font-semibold text-gray-900">
+                        {trip.availableSpots} / {trip.totalSpots}
+                      </p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Pradžia</p>
@@ -367,7 +370,7 @@ export const AdminTripListPage: React.FC = () => {
           </div>
         )}
 
-        {/* Delete Confirmation Model */}
+        {/* Delete Confirmation Modal */}
         {deleteModalOpen && tripToDelete && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">

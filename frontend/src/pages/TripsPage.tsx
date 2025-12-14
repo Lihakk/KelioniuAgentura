@@ -13,12 +13,16 @@ interface Trip {
   duration: number;
   routeId: number;
   routeName?: string;
+  mainImage?: string;
+  availableSpots?: number;
+  totalSpots?: number;
 }
 
 export const TripsPage: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { role } = useAuth();
 
   useEffect(() => {
     fetchTrips();
@@ -41,15 +45,11 @@ export const TripsPage: React.FC = () => {
     }
   };
 
-  const defaultImages = [
-    "https://plus.unsplash.com/premium_photo-1661964149725-fbf14eabd38c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1740",
-    "https://images.unsplash.com/photo-1549144511-f099e773c147?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=774",
-    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1740",
-    "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1740",
-  ];
-
-  const getImageUrl = (index: number) => {
-    return defaultImages[index % defaultImages.length];
+  const getImageUrl = (trip: Trip) => {
+    if (trip.mainImage) {
+      return `http://localhost:5050${trip.mainImage}`;
+    }
+    return `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&auto=format&fit=crop`;
   };
 
   if (loading) {
@@ -127,16 +127,21 @@ export const TripsPage: React.FC = () => {
       <h1 className="text-4xl font-bold text-center mb-8">Visos Kelionės</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {trips.map((trip, index) => (
+        {trips.map((trip) => (
           <div
             key={trip.id}
             className="bg-white rounded-lg shadow-lg overflow-hidden group hover:shadow-xl transition-shadow"
           >
             <Link to={`/trip/${trip.id}`}>
               <img
-                src={getImageUrl(index)}
+                src={getImageUrl(trip)}
                 alt={trip.name}
                 className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
+                onError={(e) => {
+                  // Fallback if image fails to load
+                  (e.target as HTMLImageElement).src = 
+                    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&auto=format&fit=crop';
+                }}
               />
             </Link>
 
@@ -201,12 +206,14 @@ export const TripsPage: React.FC = () => {
                     />
                   </svg>
                 </Link>
+                 {role !== 'Administrator' && (
                 <Link
-                  to={`/reservation/create/${trip.id}`}
-                  className="inline-block bg-blue-600 text-white font-bold px-12 py-4 rounded-lg hover:bg-blue-700 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                  to={`/rezervation/create`}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
                 >
-                  Rezervuoti Dabar
+                  Rezervuoti
                 </Link>
+              )}
               </div>
             </div>
           </div>
