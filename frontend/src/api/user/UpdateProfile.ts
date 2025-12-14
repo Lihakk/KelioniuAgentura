@@ -5,7 +5,7 @@ export const UpdateProfile = async (
   profile: UserProfile
 ): Promise<UserProfile> => {
   try {
-    const res = await apiClient.put("User/UpdateProfile", profile);
+    const res = await apiClient.put("/api/User/UpdateProfile", profile);
     return res.data;
   } catch {
     throw new Error("Could not get user profile");
