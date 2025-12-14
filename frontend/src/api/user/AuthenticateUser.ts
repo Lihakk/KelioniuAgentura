@@ -11,7 +11,7 @@ export const AuthenticateUser = async (
   loginCredentials: LoginCredentials
 ): Promise<AuthResponse> => {
   try {
-    const response = await apiClient.post("/User/Login", loginCredentials);
+    const response = await apiClient.post("/api/User/Login", loginCredentials);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data || "Login failed");

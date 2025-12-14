@@ -27,8 +27,8 @@ export const MainPage: React.FC = () => {
       <header className="relative bg-cover bg-center h-96" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1')" }}>
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
-          <h1 className="text-5xl font-extrabold mb-4">Atraskite Savo Svajonių Kelionę</h1>
-          <p className="text-lg">Planuokite nepamirštamas atostogas su mumis.</p>
+          <h1 className="text-5xl font-extrabold mb-4">Atraskite  Kelionę</h1>
+          <p className="text-lg">Planuokite  atostogas su mumis.</p>
         </div>
       </header>
 

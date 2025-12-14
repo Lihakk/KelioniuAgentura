@@ -1,15 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace backend.Entities
 {
-    public class Route
+public class Route
     {
+        [Key]
         public int Id { get; set; }
-        public string Name { get; set; }
+
+        public string Name { get; set; }         
+        public string StartCity { get; set; }    
+        public string EndCity { get; set; }      
+        
         public int DurationDays { get; set; }
         public double DistanceKm { get; set; }
-        public string Season { get; set; }
+        public string Season { get; set; } = "Any"; 
+
+        public string EncodedPolyline { get; set; } 
+        public bool IsDraft { get; set; } = true;   
 
         public List<PointOfInterest> Stops { get; set; } = new List<PointOfInterest>();
         public List<Transport> Transports { get; set; } = new List<Transport>();

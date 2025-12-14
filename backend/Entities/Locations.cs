@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace backend.Entities
 {
@@ -26,20 +27,27 @@ namespace backend.Entities
         public City City { get; set; }
     }
 
-    public class PointOfInterest
+public class PointOfInterest
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; }
+        public string Type { get; set; }     
         public string Address { get; set; }
         public bool IsPaidTicket { get; set; }
         public string OpeningHours { get; set; }
         public double Rating { get; set; }
 
-        public int CityId { get; set; }
-        public City City { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+
+        public int? CityId { get; set; }
+        [JsonIgnore]
+        public City? City { get; set; }
 
         public int RouteId { get; set; }
-        public Route Route { get; set; }
+        [JsonIgnore]
+        public Route? Route { get; set; } 
+
+        public bool IsSelected { get; set; } = true;
     }
 }

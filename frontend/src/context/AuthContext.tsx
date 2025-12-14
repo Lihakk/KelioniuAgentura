@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const reload = async () => {
     try {
-      const res = await apiClient.get("/User/Me");
+      const res = await apiClient.get("/api/User/Me");
 
       const confirmed = res.data.isEmailConfirmed === true;
       setRole(res.data.role ?? "guest");

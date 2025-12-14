@@ -2,6 +2,7 @@ using System.Text;
 using backend.Configurations;
 using backend.Data;
 using backend.Entities;
+using backend.Services;
 using backend.Services.Interfaces;
 using backend.Services.Interfaces.Results;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,7 +27,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
-
+builder.Services.AddHttpClient<IGoogleMapsService, GoogleMapsService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "FrontendAccessPolicy",
