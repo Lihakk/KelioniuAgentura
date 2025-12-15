@@ -24,6 +24,18 @@ public class ReservationController : ControllerBase
         var reservations = await _reservationService.GetAllReservationsAsync(cancellationToken);
         return Ok(reservations);
     }
+    [HttpGet("GetByUser")]
+    public async Task<IActionResult> GetAllReservationsByUser(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User ID claim missing.");
+        
+        var id = int.Parse(userId);
+        var reservations = await _reservationService.GetAllReservationsByUserIdAsync(id, cancellationToken);
+        return Ok(reservations);
+    }
     // [Authorize(Roles = "Client")]
     [HttpPost("Create")]
     public async Task<IActionResult> CreateReservation(CreateReservationDto reservationDetails, CancellationToken cancellationToken)

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { GetAllReservations } from "../../api/reservation/GetAllReservations";
 import type { Reservation } from "../../types/Reservation";
+import { GetReservationByUserId } from "../../api/reservation/GetReservationByIdUser";
 
 type Trip = {
   id: number;
@@ -21,7 +22,7 @@ export const RezervationListPage: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const reservationsData = await GetAllReservations();
+      const reservationsData = await GetReservationByUserId();
       setReservations(reservationsData);
 
       const tripIds = [

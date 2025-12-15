@@ -63,7 +63,7 @@ public class ReservationService : IReservationService
         return reservations;
     }
 
-    public async Task<List<ReservationDto>> GetAllReservationsByUserIdAsync(int userId)
+    public async Task<List<ReservationDto>> GetAllReservationsByUserIdAsync(int userId, CancellationToken cancellationToken)
     {
         var reservations = await _context.Reservations
             .Where(r => r.UserId == userId)
@@ -105,7 +105,7 @@ public class ReservationService : IReservationService
                     ReservationId = t.ReservationId,
                 }).ToList(),
 
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken);
 
         return reservations;
     }
