@@ -24,9 +24,7 @@ namespace backend.Controllers
             _logger = logger;
         }
 
-        // ============================================
-        // GET RECOMMENDATIONS
-        // ============================================
+      
         
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RecommendationDto>>> GetRecommendations(
@@ -124,7 +122,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"❌ Error generating recommendations: {ex.Message}");
+                _logger.LogError($"Error generating recommendations: {ex.Message}");
                 return StatusCode(500, new { 
                     message = "Klaida generuojant rekomendacijas",
                     error = ex.Message 
@@ -132,9 +130,7 @@ namespace backend.Controllers
             }
         }
 
-        // ============================================
-        // SAVE PREFERENCES
-        // ============================================
+      
         
         [HttpPost("preferences")]
         public async Task<IActionResult> SavePreferences([FromBody] UserPreferencesDto dto)
@@ -223,9 +219,9 @@ namespace backend.Controllers
             }
         }
         
-        // ============================================
+    
         // GET PREFERENCES
-        // ============================================
+       
         
         [HttpGet("preferences/{userId}")]
         public async Task<ActionResult<UserPreferencesDto>> GetPreferences(int userId)
@@ -263,7 +259,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($" Error getting preferences: {ex.Message}");
+                _logger.LogError($"Error getting preferences: {ex.Message}");
                 return StatusCode(500, new { 
                     message = "Klaida gaunant preferencijas",
                     error = ex.Message 
@@ -271,29 +267,38 @@ namespace backend.Controllers
             }
         }
 
-        // ============================================
-        // SCORING ALGORITHM - MULTI-FACTOR
-        // ============================================
+       
+        // SCORING ALGORITHM - MULTI-FACTOR 
+       
         
         private double CalculateRecommendationScore(Trip trip, UserPreferences prefs)
         {
             double totalScore = 0;
 
-            // Factor 1: Budget Match (35 points)
-            totalScore += CalculateBudgetScore(trip.Price, prefs.BudgetMin, prefs.BudgetMax) * 35;
+            // Factor 1: Budget Match (23 points)
+            totalScore += CalculateBudgetScore(trip.Price, prefs.BudgetMin, prefs.BudgetMax) * 23;
 
-            // Factor 2: Duration Match (25 points)
+            // Factor 2: Duration Match (18 points)
             int tripDuration = (trip.EndDate - trip.StartDate).Days;
-            totalScore += CalculateDurationScore(tripDuration, prefs.MinDuration, prefs.MaxDuration) * 25;
+            totalScore += CalculateDurationScore(tripDuration, prefs.MinDuration, prefs.MaxDuration) * 18;
 
-            // Factor 3: Date Match (20 points)
-            totalScore += CalculateDateScore(trip.StartDate, trip.EndDate, prefs.TravelDateStart, prefs.TravelDateEnd) * 20;
+            // Factor 3: Date Match (14 points)
+            totalScore += CalculateDateScore(trip.StartDate, trip.EndDate, prefs.TravelDateStart, prefs.TravelDateEnd) * 14;
 
-            // Factor 4: Destination Match (15 points)
+            // Factor 4: Destination Match (15 points) - WITH SYNONYMS
             totalScore += CalculateDestinationScore(trip, prefs.PreferredDestinations) * 15;
 
-            // Factor 5: Availability Bonus (5 points)
-            totalScore += CalculateAvailabilityScore(trip.AvailableSpots, trip.TotalSpots) * 5;
+            // Factor 5: Travel Style Match (15 points) - WITH SYNONYMS
+            totalScore += CalculateTravelStyleScore(trip, prefs.TravelStyle) * 15;
+
+            // Factor 6: Activity Level Match (7 points)
+            totalScore += CalculateActivityLevelScore(trip, prefs.ActivityLevel) * 7;
+
+            // Factor 7: Group Size Match (5 points) - NEW!
+            totalScore += CalculateGroupSizeScore(trip, prefs.GroupSize) * 5;
+
+            // Factor 8: Availability Bonus (3 points)
+            totalScore += CalculateAvailabilityScore(trip.AvailableSpots, trip.TotalSpots) * 3;
 
             // Cap score at 100
             return Math.Min(Math.Round(totalScore, 2), 100);
@@ -379,7 +384,7 @@ namespace backend.Controllers
             return 0; // Too far away
         }
 
-        // Destination matching: returns 0-1 score
+        // Destination matching WITH SYNONYMS: returns 0-1 score
         private double CalculateDestinationScore(Trip trip, string preferredDestinations)
         {
             if (string.IsNullOrEmpty(preferredDestinations))
@@ -398,18 +403,260 @@ namespace backend.Controllers
             }
 
             var tripTitle = trip.Title?.ToLower() ?? "";
+            var tripDescription = trip.Description?.ToLower() ?? "";
             var routeName = trip.Route?.Name?.ToLower() ?? "";
 
-            // Check if any destination matches
+            // Destination synonyms dictionary
+            var destinationSynonyms = new Dictionary<string, List<string>>
+            {
+                { "graikija", new List<string> { "graikija", "greece", "atėnai", "athens", "graikų", "santorini" } },
+                { "italija", new List<string> { "italija", "italy", "roma", "rome", "venecija", "venice", "florencija", "milano", "italų" } },
+                { "ispanija", new List<string> { "ispanija", "spain", "barselona", "barcelona", "madridas", "madrid", "ispanų", "valensija" } },
+                { "prancūzija", new List<string> { "prancūzija", "france", "paryžius", "paris", "prancūzų", "nicė", "lionas" } },
+                { "portugalija", new List<string> { "portugalija", "portugal", "lisabona", "lisbon", "porto", "portugalų" } },
+                { "kroatija", new List<string> { "kroatija", "croatia", "dubrovnikas", "dubrovnik", "splitas", "split", "kroatų", "zagreb" } },
+                { "lietuva", new List<string> { "lietuva", "lithuania", "vilnius", "kaunas", "klaipėda", "lietuvos", "lietuviškas" } },
+                { "latvija", new List<string> { "latvija", "latvia", "ryga", "riga", "latvijos", "latviškas" } },
+                { "estija", new List<string> { "estija", "estonia", "talinas", "tallinn", "estijos", "estiškas" } },
+                { "vokietija", new List<string> { "vokietija", "germany", "berlynas", "berlin", "miunchenas", "munich", "vokiečių", "hamburgas" } },
+                { "lenkija", new List<string> { "lenkija", "poland", "varšuva", "warsaw", "krokuva", "krakow", "lenkų", "gdanskas" } },
+                { "čekija", new List<string> { "čekija", "czech", "praha", "prague", "čekų", "brno" } },
+                { "austrija", new List<string> { "austrija", "austria", "viena", "vienna", "austrijų", "zalcburgas" } },
+                { "vengrija", new List<string> { "vengrija", "hungary", "budapeštas", "budapest", "vengrų", "vengrijos" } },
+                { "baltijos", new List<string> { "baltijos", "baltic", "baltija", "baltics" } }
+            };
+
+            int matchCount = 0;
             foreach (var destination in preferred)
             {
-                if (tripTitle.Contains(destination) || routeName.Contains(destination))
+                var destLower = destination.ToLower();
+                
+                // Try to find synonyms
+                var synonyms = new List<string> { destLower };
+                foreach (var kvp in destinationSynonyms)
                 {
-                    return 1.0; // Match found!
+                    if (kvp.Value.Contains(destLower) || kvp.Key == destLower)
+                    {
+                        synonyms.AddRange(kvp.Value);
+                        break;
+                    }
+                }
+
+                // Check all synonyms
+                foreach (var synonym in synonyms.Distinct())
+                {
+                    if (tripTitle.Contains(synonym) || 
+                        tripDescription.Contains(synonym) || 
+                        routeName.Contains(synonym))
+                    {
+                        matchCount++;
+                        break; // Found match for this destination
+                    }
                 }
             }
 
+            // Return ratio of matched destinations
+            if (matchCount > 0)
+            {
+                return Math.Min(1.0, (double)matchCount / preferred.Count);
+            }
+
             return 0; // No match
+        }
+
+        private double CalculateTravelStyleScore(Trip trip, string travelStyle)
+        {
+            if (string.IsNullOrEmpty(travelStyle))
+            {
+                return 0.5; 
+            }
+
+            var userStyles = travelStyle.ToLower().Split(',')
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+
+            if (!userStyles.Any())
+            {
+                return 0.5;
+            }
+
+            var tripTitle = trip.Title?.ToLower() ?? "";
+            var tripDescription = trip.Description?.ToLower() ?? "";
+            var routeName = trip.Route?.Name?.ToLower() ?? "";
+
+            // Enhanced style keywords with synonyms
+            var styleKeywords = new Dictionary<string, List<string>>
+            {
+                { "nuotykiai", new List<string> { 
+                    "nuotykis", "nuotyki", "adventure", "ekstremalus", "aktyvus", 
+                    "žygis", "kelionė", "tyrinėjimas", "expedition", "exploration"
+                }},
+                { "gamta", new List<string> { 
+                    "gamta", "parkas", "nacionalinis", "kraštovaizdis", "nature", 
+                    "miškas", "kalnas", "kalnynas", "ežeras", "upė", "jūra", "paplūdimys",
+                    "kalnai", "gamtos", "aplinka", "ekologija", "wildlife", "outdoor"
+                }},
+                { "kultūra", new List<string> { 
+                    "kultūra", "muziejus", "istorija", "menas", "architektūra", 
+                    "senamiestis", "paminklas", "galerija", "teatras", "opera",
+                    "istorinis", "kultūrinis", "heritage", "culture", "art", "museum",
+                    "traditional", "paveldas"
+                }},
+                { "atsipalaidavimas", new List<string> { 
+                    "atsipalaidavimas", "spa", "poilsis", "ramybė", "relaxation", 
+                    "wellness", "sveikata", "masažas", "atsipalaidavimo", "comfort",
+                    "komfortas", "prabanga", "luxury"
+                }},
+                { "miestas", new List<string> { 
+                    "miestas", "sostinė", "city", "metropolis", "urbanistinis",
+                    "miesto", "didmiestis", "urban", "centras", "downtown"
+                }}
+            };
+
+            int matchCount = 0;
+            foreach (var userStyle in userStyles)
+            {
+                if (styleKeywords.TryGetValue(userStyle, out var keywords))
+                {
+                    foreach (var keyword in keywords)
+                    {
+                        if (tripTitle.Contains(keyword) || 
+                            tripDescription.Contains(keyword) || 
+                            routeName.Contains(keyword))
+                        {
+                            matchCount++;
+                            break; // Found match for this style, move to next
+                        }
+                    }
+                }
+                else
+                {
+                    // Direct match attempt for unknown styles
+                    if (tripTitle.Contains(userStyle) || 
+                        tripDescription.Contains(userStyle) || 
+                        routeName.Contains(userStyle))
+                    {
+                        matchCount++;
+                    }
+                }
+            }
+
+            // Return ratio of matched styles
+            if (matchCount > 0)
+            {
+                return Math.Min(1.0, (double)matchCount / userStyles.Count);
+            }
+
+            return 0.3; // Small bonus for no explicit anti-match
+        }
+
+        // Activity Level matching: returns 0-1 score
+        private double CalculateActivityLevelScore(Trip trip, int userActivityLevel)
+        {
+            // If user has no preference (level 0 or invalid), return neutral
+            if (userActivityLevel <= 0 || userActivityLevel > 5)
+            {
+                return 0.5;
+            }
+
+            // Estimate trip activity level based on duration and description
+            int tripActivityLevel = EstimateTripActivityLevel(trip);
+
+            // Calculate difference
+            int diff = Math.Abs(tripActivityLevel - userActivityLevel);
+
+            // Score based on how close they are
+            // 0 diff = 1.0, 1 diff = 0.8, 2 diff = 0.6, 3 diff = 0.4, 4 diff = 0.2
+            double score = Math.Max(0, 1.0 - (diff * 0.2));
+
+            return score;
+        }
+
+        private double CalculateGroupSizeScore(Trip trip, string groupSize)
+        {
+            if (string.IsNullOrEmpty(groupSize) || groupSize.ToLower() == "any" || groupSize.ToLower() == "bet koks")
+            {
+                return 0.5; 
+            }
+
+            var tripTitle = trip.Title?.ToLower() ?? "";
+            var tripDescription = trip.Description?.ToLower() ?? "";
+            
+            // Estimate trip suitability for different group sizes
+            var userGroupLower = groupSize.ToLower().Trim();
+
+            // Keywords for different group sizes
+            var soloKeywords = new[] { "solo", "vienas", "individualus", "asmeninis", "single" };
+            var coupleKeywords = new[] { "pora", "dviese", "romantiškas", "romantic", "couple", "honeymoon" };
+            var familyKeywords = new[] { "šeima", "šeimos", "vaikai", "family", "kids", "children", "vaikams" };
+            var groupKeywords = new[] { "grupė", "grupės", "draugai", "kompanija", "group", "team", "įmonės", "corporate" };
+
+            bool matchFound = false;
+
+            switch (userGroupLower)
+            {
+                case "solo":
+                case "vienas":
+                    matchFound = soloKeywords.Any(k => tripTitle.Contains(k) || tripDescription.Contains(k));
+                    // Solo travelers are flexible - if no specific mention, give medium score
+                    return matchFound ? 1.0 : 0.6;
+
+                case "pora":
+                case "couple":
+                    matchFound = coupleKeywords.Any(k => tripTitle.Contains(k) || tripDescription.Contains(k));
+                    // Couples are also flexible
+                    return matchFound ? 1.0 : 0.6;
+
+                case "šeima":
+                case "family":
+                    matchFound = familyKeywords.Any(k => tripTitle.Contains(k) || tripDescription.Contains(k));
+                    // Family trips need to be suitable
+                    return matchFound ? 1.0 : 0.4;
+
+                case "grupė":
+                case "group":
+                    matchFound = groupKeywords.Any(k => tripTitle.Contains(k) || tripDescription.Contains(k));
+                    // Group trips need group-friendly activities
+                    return matchFound ? 1.0 : 0.5;
+
+                default:
+                    return 0.5; // Unknown preference
+            }
+        }
+
+        // Estimate activity level of trip - HELPER
+        private int EstimateTripActivityLevel(Trip trip)
+        {
+            int duration = (trip.EndDate - trip.StartDate).Days;
+            var title = trip.Title?.ToLower() ?? "";
+            var description = trip.Description?.ToLower() ?? "";
+
+            int level = 3; // Default: Vidutinis
+
+            // Keywords for high activity
+            var highActivityKeywords = new[] { "nuotykis", "aktyvus", "žygis", "kalnas", "ekstremalus", "adventure", "hiking", "trekking", "sports" };
+            // Keywords for low activity
+            var lowActivityKeywords = new[] { "atsipalaidavimas", "spa", "poilsis", "ramybė", "kultūra", "muziejus", "relaxation", "leisure", "cultural" };
+
+            if (highActivityKeywords.Any(k => title.Contains(k) || description.Contains(k)))
+            {
+                level = 5; // Aktyvus
+            }
+            else if (lowActivityKeywords.Any(k => title.Contains(k) || description.Contains(k)))
+            {
+                level = 2; // Ramus
+            }
+            else if (duration <= 3)
+            {
+                level = 4; 
+            }
+            else if (duration >= 7)
+            {
+                level = 2; 
+            }
+
+            return level;
         }
 
         // Availability score: returns 0-1
@@ -421,9 +668,9 @@ namespace backend.Controllers
             return ratio; // More available spots = higher score
         }
 
-        // ============================================
-        // GENERATE REASONS
-        // ============================================
+      
+        // REASONS
+        
         
         private List<string> GenerateReasons(Trip trip, UserPreferences prefs)
         {
@@ -469,6 +716,63 @@ namespace backend.Controllers
                 }
             }
 
+            // Travel Style
+            if (!string.IsNullOrEmpty(prefs.TravelStyle))
+            {
+                var userStyles = prefs.TravelStyle.ToLower().Split(',').Select(s => s.Trim()).ToList();
+                var tripTitle = trip.Title?.ToLower() ?? "";
+                var tripDescription = trip.Description?.ToLower() ?? "";
+
+                foreach (var style in userStyles)
+                {
+                    if (tripTitle.Contains(style) || tripDescription.Contains(style))
+                    {
+                        var styleDisplay = char.ToUpper(style[0]) + style.Substring(1);
+                        reasons.Add($"Stilius: {styleDisplay}");
+                        break;
+                    }
+                }
+            }
+
+            // Activity Level
+            int tripActivity = EstimateTripActivityLevel(trip);
+            int diff = Math.Abs(tripActivity - prefs.ActivityLevel);
+            if (diff <= 1)
+            {
+                var activityLabels = new[] { "", "Labai ramus", "Ramus", "Vidutinis", "Aktyvus", "Labai aktyvus" };
+                if (tripActivity >= 1 && tripActivity <= 5)
+                {
+                    reasons.Add($"Aktyvumas: {activityLabels[tripActivity]}");
+                }
+            }
+
+            // Group Size
+            if (!string.IsNullOrEmpty(prefs.GroupSize) && prefs.GroupSize.ToLower() != "any")
+            {
+                var tripTitle = trip.Title?.ToLower() ?? "";
+                var tripDescription = trip.Description?.ToLower() ?? "";
+                var groupLower = prefs.GroupSize.ToLower();
+
+                bool isMatch = false;
+                if (groupLower == "pora" && (tripTitle.Contains("pora") || tripDescription.Contains("romantiškas")))
+                {
+                    isMatch = true;
+                }
+                else if (groupLower == "šeima" && (tripTitle.Contains("šeima") || tripDescription.Contains("vaikams")))
+                {
+                    isMatch = true;
+                }
+                else if (groupLower == "grupė" && (tripTitle.Contains("grupė") || tripDescription.Contains("kompanija")))
+                {
+                    isMatch = true;
+                }
+
+                if (isMatch)
+                {
+                    reasons.Add($"Tinka {prefs.GroupSize}");
+                }
+            }
+
             // Availability
             if (trip.AvailableSpots > 5)
             {
@@ -489,9 +793,9 @@ namespace backend.Controllers
         }
     }
 
-    // ============================================
+   
     // DTOs
-    // ============================================
+    
 
     public class RecommendationDto
     {

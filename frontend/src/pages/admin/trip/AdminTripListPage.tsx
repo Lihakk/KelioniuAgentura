@@ -43,9 +43,9 @@ export const AdminTripListPage: React.FC = () => {
       
       setTrips(response.data);
     } catch (error: any) {
-      console.error("❌ Error fetching trips:", error);
-      console.error("❌ Error response:", error.response);
-      console.error("❌ Error message:", error.message);
+      console.error("Error fetching trips:", error);
+      console.error("Error response:", error.response);
+      console.error("Error message:", error.message);
       
       if (error.response) {
         setError(`Backend klaida: ${error.response.status} - ${error.response.data?.message || error.message}`);
@@ -158,25 +158,7 @@ export const AdminTripListPage: React.FC = () => {
               </p>
             </div>
             <div className="flex space-x-3">
-              <Link
-                to="/admin/trip/recommendations"
-                className="inline-flex items-center px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  />
-                </svg>
-                Rekomendacijos
-              </Link>
+              
               <Link
                 to="/admin/trip/create"
                 className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"

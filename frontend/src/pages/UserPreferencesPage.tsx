@@ -92,7 +92,7 @@ export const UserPreferencesPage: React.FC = () => {
         formData
       );
 
-      navigate('/recommendations');
+      navigate('/');
     } catch (err: any) {
       console.error('Error saving preferences:', err);
       setError(
@@ -244,17 +244,25 @@ export const UserPreferencesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Destinations */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Pageidaujamos Kryptys</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              { value: 'greece', label: 'Graikija' },
-              { value: 'italy', label: 'Italija' },
-              { value: 'france', label: 'Prancūzija' },
-              { value: 'spain', label: 'Ispanija' },
-              { value: 'portugal', label: 'Portugalija' },
-              { value: 'croatia', label: 'Kroatija' },
+              { value: 'graikija', label: 'Graikija' },
+              { value: 'ispanija', label: 'Ispanija' },
+              { value: 'italija', label: 'Italija' },
+              { value: 'prancūzija', label: 'Prancūzija' },
+              { value: 'portugalija', label: 'Portugalija' },
+              { value: 'kroatija', label: 'Kroatija' },
+              { value: 'lietuva', label: 'Lietuva' },
+              { value: 'latvija', label: 'Latvija' },
+              { value: 'estija', label: 'Estija' },
+              { value: 'vokietija', label: 'Vokietija' },
+              { value: 'lenkija', label: 'Lenkija' },
+              { value: 'čekija', label: 'Čekija' },
+              { value: 'austrija', label: 'Austrija' },
+              { value: 'vengrija', label: 'Vengrija' },
+              { value: 'baltijos', label: 'Baltijos šalys' },
             ].map((dest) => (
               <label key={dest.value} className="flex items-center space-x-2 cursor-pointer">
                 <input
@@ -269,16 +277,15 @@ export const UserPreferencesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Travel Style */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Kelionės Stilius</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              { value: 'adventure', label: 'Nuotykiai' },
-              { value: 'relaxation', label: 'Atsipalaidavimas' },
-              { value: 'cultural', label: 'Kultūra' },
-              { value: 'nature', label: 'Gamta' },
-              { value: 'city', label: 'Miestas' },
+              { value: 'nuotykiai', label: 'Nuotykiai' },
+              { value: 'atsipalaidavimas', label: 'Atsipalaidavimas' },
+              { value: 'kultūra', label: 'Kultūra' },
+              { value: 'gamta', label: 'Gamta' },
+              { value: 'miestas', label: 'Miestas' },
             ].map((style) => (
               <label key={style.value} className="flex items-center space-x-2 cursor-pointer">
                 <input
@@ -315,7 +322,6 @@ export const UserPreferencesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Group Size */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Grupės Dydis</h2>
           <select
@@ -325,9 +331,9 @@ export const UserPreferencesPage: React.FC = () => {
           >
             <option value="any">Bet koks</option>
             <option value="solo">Solo</option>
-            <option value="couple">Pora</option>
-            <option value="family">Šeima</option>
-            <option value="group">Grupė</option>
+            <option value="pora">Pora</option>
+            <option value="šeima">Šeima</option>
+            <option value="grupė">Grupė</option>
           </select>
         </div>
 
