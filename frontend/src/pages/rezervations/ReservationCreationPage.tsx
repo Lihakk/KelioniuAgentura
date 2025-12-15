@@ -20,7 +20,7 @@ export const ReservationCreationPage: React.FC = () => {
   useEffect(() => {
     const fetchTrip = async () => {
       try {
-        const res = await apiClient.get(`/admin/trips/${tripId}`);
+        const res = await apiClient.get(`/api/admin/trips/${tripId}`);
         setTrip(res.data);
       } catch {
         console.error("Could not load trip");
@@ -101,7 +101,7 @@ export const ReservationCreationPage: React.FC = () => {
       <h1 className="text-4xl font-bold text-center mb-6">Nauja rezervacija</h1>
 
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border">
-        <h2 className="text-xl font-semibold">{trip.title}</h2>
+        <h2 className="text-xl font-semibold">{trip.name}</h2>
         <p className="text-sm text-gray-600">
           {trip.startDate.split("T")[0]} – {trip.endDate.split("T")[0]}
         </p>

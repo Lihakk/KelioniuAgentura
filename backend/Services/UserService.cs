@@ -97,7 +97,9 @@ public class UserService : IUserService
 
     public async Task<AuthResult> Register(RegisterDto dto, CancellationToken cancellationToken)
     {
-        if (await _context.Users.AnyAsync(u => u.Username == dto.Username, cancellationToken) && await _context.Users.AnyAsync(u => u.Email == dto.Email, cancellationToken))
+        if (await _context.Users.AnyAsync(
+                u => u.Username == dto.Username || u.Email == dto.Email,
+                cancellationToken))
         {
             return new AuthResult
             {
@@ -244,4 +246,31 @@ public class UserService : IUserService
         
         return userInfo;
     }
+    public async Task DeleteUser(string userId, CancellationToken cancellationToken)
+    {
+        var user = await _context.Users
+            .Include(u => u.Reservations)
+            .ThenInclude(r => r.Travelers)
+            .Include(u => u.Reservations)
+            .ThenInclude(r => r.Payment)
+            .FirstOrDefaultAsync(u => u.Id.ToString() == userId, cancellationToken);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        foreach (var reservation in user.Reservations)
+        {
+            _context.Travelers.RemoveRange(reservation.Travelers);
+
+            if (reservation.Payment != null)
+                _context.Payments.Remove(reservation.Payment);
+
+            _context.Reservations.Remove(reservation);
+        }
+
+        _context.Users.Remove(user);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
 }

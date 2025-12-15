@@ -8,6 +8,7 @@ import { UpdateProfile } from "../api/user/UpdateProfile";
 export const ProfileEditPage: React.FC = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [error, setError] = useState(false);
 
   const [formData, setFormData] = useState<UserProfile>({
     firstName: "",
@@ -19,8 +20,12 @@ export const ProfileEditPage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await GetUserProfile();
-      setProfile(data);
+      try {
+        const data = await GetUserProfile();
+        setProfile(data);
+      } catch {
+        setError(true);
+      }
     };
     fetchData();
   }, []);
@@ -45,8 +50,12 @@ export const ProfileEditPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    await UpdateProfile(formData);
-    navigate("/profile");
+    try {
+      await UpdateProfile(formData);
+      navigate("/profile");
+    } catch {
+      setError(true);
+    }
   };
 
   return (
@@ -111,7 +120,7 @@ export const ProfileEditPage: React.FC = () => {
               htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              El. paštas
+              Slapyvardis
             </label>
             <input
               id="username"
@@ -122,6 +131,11 @@ export const ProfileEditPage: React.FC = () => {
               required
             />
           </div>
+          {error && (
+            <p className="mt-4 text-center text-sm text-red-600">
+              Duomenų redagavimas negalimas
+            </p>
+          )}
           <div className="pt-2">
             <button
               type="submit"

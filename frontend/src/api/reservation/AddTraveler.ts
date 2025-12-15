@@ -3,7 +3,7 @@ import { apiClient } from "../AxiosInstace";
 
 export const AddTraveler = async (traveler: CreateTraveler) => {
   try {
-    const res = await apiClient.post(`Reservation/AddTraveler`, traveler);
+    const res = await apiClient.post(`/api/Reservation/AddTraveler`, traveler);
     return res.data;
   } catch {
     throw new Error("Could not add traveler");

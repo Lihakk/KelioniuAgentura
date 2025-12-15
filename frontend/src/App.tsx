@@ -21,7 +21,7 @@ import { RoutesDashboardPage } from "./pages/admin/routes/RoutesDashboardPage";
 import { EstimateTimePage } from "./pages/admin/routes/EstimateTimePage";
 import { RoutePreviewPage } from "./pages/admin/routes/RoutePreviewPage";
 import { RouteEditPage } from "./pages/admin/routes/RouteEditPage";
-import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage"; 
+import { RouteCreatePage } from "./pages/admin/routes/RouteCreatePage";
 import { RouteCancelPage } from "./pages/admin/routes/RouteCancelPage";
 //import { TripDashboardPage } from "./pages/admin/trip/TripDashboardPage";
 import { AdminTripListPage } from "./pages/admin/trip/AdminTripListPage"; // Kelias atrodo teisingas, tikrinkite eksportąimport { RezervationListPage } from "./pages/rezervations/RezervationListPage";
@@ -52,13 +52,13 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/profile/edit" element={<ProfileEditPage />} />
         <Route path="/profile/approve" element={<ProfileApprovalPage />} />
-        
+
         {/* ✅ RECOMMENDATIONS ROUTES */}
         <Route path="/preferences" element={<UserPreferencesPage />} />
-        
+
         {/* Nested Admin Routes */}
         <Route path="/admin" element={<AdminPage />}>
-          <Route path="reservations" element={<ViewReservationsPage />} />
+          {/* <Route path="reservations" element={<ViewReservationsPage />} /> */}
           <Route path="routes" element={<RoutesDashboardPage />} />
           <Route path="routes/create" element={<RouteCreatePage />} />
           <Route path="routes/edit/:id" element={<RouteEditPage />} />

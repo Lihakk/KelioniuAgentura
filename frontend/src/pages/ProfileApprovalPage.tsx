@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmEmail } from "../api/user/ConfirmEmail";
+import { useAuth } from "../context/AuthContext";
 
-export const ProfileApprovalPage: React.FC = () => {
+const ProfileApprovalPage: React.FC = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
+
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
 
@@ -13,7 +16,13 @@ export const ProfileApprovalPage: React.FC = () => {
     if (code.length === 6 && /^[0-9]+$/.test(code)) {
       try {
         await ConfirmEmail(code);
-        navigate("/");
+
+        const reload = await auth.reload();
+        if (reload.authenticated) {
+          navigate("/");
+        } else {
+          setError("Nepavyko prisijungti po patvirtinimo.");
+        }
       } catch {
         setError("Kodo patvirtinimas nepavyko. Bandykite dar kartą.");
       }
@@ -28,6 +37,7 @@ export const ProfileApprovalPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-center mb-6">
           Profilio patvirtinimas
         </h1>
+
         <p className="text-gray-600 text-center mb-4">
           Įveskite 6 skaitmenų kodą, kurį gavote el. paštu.
         </p>
@@ -40,6 +50,7 @@ export const ProfileApprovalPage: React.FC = () => {
             >
               Patvirtinimo kodas
             </label>
+
             <input
               id="code"
               type="text"
@@ -51,6 +62,7 @@ export const ProfileApprovalPage: React.FC = () => {
               placeholder="••••••"
               required
             />
+
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
 

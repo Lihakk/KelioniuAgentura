@@ -1,5 +1,4 @@
-// src/pages/LoginPage.tsx
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { LoginCredentials } from "../types/User";
@@ -8,9 +7,12 @@ import { AuthenticateUser } from "../api/user/AuthenticateUser";
 export const LoginPage: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     const form = e.target as HTMLFormElement;
     const username = form.elements.namedItem("username") as HTMLInputElement;
     const password = form.elements.namedItem("password") as HTMLInputElement;
@@ -30,15 +32,19 @@ export const LoginPage: React.FC = () => {
       const reload = await auth.reload();
       if (reload.authenticated) {
         navigate("/");
+      } else {
+        setError("Neteisingas vartotojo vardas arba slaptažodis");
       }
     } catch (err: any) {
-      alert(err.message || "Invalid username or password");
+      setError("Neteisingas vartotojo vardas arba slaptažodis");
     }
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow">
         <h2 className="text-2xl font-bold mb-6">Prisijungimas</h2>
+
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -50,6 +56,7 @@ export const LoginPage: React.FC = () => {
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Slaptažodis
@@ -61,13 +68,19 @@ export const LoginPage: React.FC = () => {
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <button
             type="submit"
             className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Prisijungti
           </button>
+
+          {error && (
+            <p className="text-sm text-red-600 text-center mt-2">{error}</p>
+          )}
         </form>
+
         <div className="mt-6 text-center text-sm text-gray-600">
           <p className="text-center text-gray-600 mt-4">
             Neturite paskyros?{" "}

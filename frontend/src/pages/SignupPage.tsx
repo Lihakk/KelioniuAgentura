@@ -1,5 +1,4 @@
-// src/pages/SignupPage.tsx
-import React from "react";
+import React, { useState } from "react";
 import BackButton from "../components/BackButton";
 import { useNavigate } from "react-router-dom";
 import type { RegisterUserDetails } from "../types/User";
@@ -7,9 +6,12 @@ import { RegisterUser } from "../api/user/RegisterUser";
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
     const form = e.target as HTMLFormElement;
 
     const username = form.elements.namedItem("username") as HTMLInputElement;
@@ -26,10 +28,12 @@ export const SignupPage: React.FC = () => {
       password: password.value,
     };
 
-    console.log(registerInfo);
-
-    await RegisterUser(registerInfo);
-    navigate("/Login", { replace: true });
+    try {
+      await RegisterUser(registerInfo);
+      navigate("/Login", { replace: true });
+    } catch (err: any) {
+      setError("Registracija nepavyko");
+    }
   };
 
   return (
@@ -39,6 +43,7 @@ export const SignupPage: React.FC = () => {
           <h1 className="text-2xl font-bold">Sukurti paskyrą</h1>
           <BackButton />
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
@@ -49,11 +54,13 @@ export const SignupPage: React.FC = () => {
             </label>
             <input
               id="firstName"
+              name="firstName"
               type="text"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <div>
             <label
               htmlFor="lastName"
@@ -63,11 +70,13 @@ export const SignupPage: React.FC = () => {
             </label>
             <input
               id="lastName"
-              type="lastName"
+              name="lastName"
+              type="text"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <div>
             <label
               htmlFor="email"
@@ -77,11 +86,13 @@ export const SignupPage: React.FC = () => {
             </label>
             <input
               id="email"
+              name="email"
               type="email"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <div>
             <label
               htmlFor="username"
@@ -91,31 +102,39 @@ export const SignupPage: React.FC = () => {
             </label>
             <input
               id="username"
-              type="username"
+              name="username"
+              type="text"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <div>
             <label
-              htmlFor="password "
+              htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
               Slaptažodis
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               required
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
             />
           </div>
+
           <button
             type="submit"
             className="w-full rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Registruotis
           </button>
+
+          {error && (
+            <p className="text-sm text-red-600 text-center mt-2">{error}</p>
+          )}
         </form>
       </div>
     </div>
