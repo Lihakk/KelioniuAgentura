@@ -49,6 +49,35 @@ const TripCard: React.FC<{ rec: Recommendation; isGuest?: boolean }> = ({ rec, i
     return 'from-gray-500 to-gray-600';
   };
 
+  // Funkcija badge'ų spalvoms pagal priežastį
+  const getBadgeColor = (reason: string) => {
+    if (reason.includes('biudžetą') || reason.includes('Ekonomiška')) {
+      return 'bg-green-100 text-green-800';
+    }
+    if (reason.includes('trukmė') || reason.includes('dienų')) {
+      return 'bg-blue-100 text-blue-800';
+    }
+    if (reason.includes('datas')) {
+      return 'bg-purple-100 text-purple-800';
+    }
+    if (reason.includes('kryptis')) {
+      return 'bg-pink-100 text-pink-800';
+    }
+    if (reason.includes('Stilius')) {
+      return 'bg-indigo-100 text-indigo-800';
+    }
+    if (reason.includes('Aktyvumas')) {
+      return 'bg-orange-100 text-orange-800';
+    }
+    if (reason.includes('Tinka')) {
+      return 'bg-yellow-100 text-yellow-800';
+    }
+    if (reason.includes('vietos') || reason.includes('vietų')) {
+      return 'bg-red-100 text-red-800';
+    }
+    return 'bg-gray-100 text-gray-800';
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
       <div className="relative h-48 overflow-hidden">
@@ -103,23 +132,16 @@ const TripCard: React.FC<{ rec: Recommendation; isGuest?: boolean }> = ({ rec, i
           </div>
         )}
 
+        {/* ATNAUJINTA: Badge'ai su spalvomis */}
         {rec.reasons.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {rec.reasons.slice(0, 2).map((reason, idx) => (
-              <div key={idx} className="flex items-start text-sm">
-                <svg
-                  className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-gray-700">{reason}</span>
-              </div>
+          <div className="mb-4 flex flex-wrap gap-2">
+            {rec.reasons.slice(0, 3).map((reason, idx) => (
+              <span
+                key={idx}
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${getBadgeColor(reason)}`}
+              >
+                {reason}
+              </span>
             ))}
           </div>
         )}
@@ -155,7 +177,6 @@ const TripCard: React.FC<{ rec: Recommendation; isGuest?: boolean }> = ({ rec, i
             Peržiūrėti
           </Link>
           
-          {/* ✅ ONLY SHOW IF NOT ADMIN */}
           {role !== 'Administrator' && (
             <Link
               to={isGuest ? '/login' : `/rezervation/create`}
@@ -257,7 +278,7 @@ export const MainPage: React.FC = () => {
               routeName: trip.routeName,
               availableSpots: trip.availableSpots || 0,
               totalSpots: trip.totalSpots || 0,
-              mainImage: trip.mainImage,  // ✅ ADD IMAGE
+              mainImage: trip.mainImage,
               score: 75,
               matchPercentage: 75,
               reasons: reasons,
