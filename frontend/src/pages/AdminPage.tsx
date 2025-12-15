@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import React from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 const ItemIcon = ({ children }: { children: React.ReactNode }) => (
   <span className="grid h-10 w-10 place-items-center rounded-lg bg-gray-100 text-gray-700 transition-colors group-hover:bg-gray-200">
@@ -115,27 +115,26 @@ const LightBulbIcon = () => (
   </svg>
 );
 
+// {
+//   to: 'reservations',
+//   title: 'Peržiūrėti Rezervacijas',
+//   desc: 'Užsakymai ir mokėjimai',
+//   icon: <CalendarCheck />,
+// },
 const AdminDashboard: React.FC = () => {
   const items = [
     {
-      to: 'reservations',
-      title: 'Peržiūrėti Rezervacijas',
-      desc: 'Užsakymai ir mokėjimai',
-      icon: <CalendarCheck />,
-    },
-    {
-      to: 'trip',
-      title: 'Kelionių Valdymas',
-      desc: 'Valdyti visas keliones',
+      to: "trip",
+      title: "Kelionių Valdymas",
+      desc: "Valdyti visas keliones",
       icon: <Suitcase />,
     },
     {
-      to: 'routes',
-      title: 'Maršrutų Valdymas',
-      desc: 'Tvarkyti maršrutus',
+      to: "routes",
+      title: "Maršrutų Valdymas",
+      desc: "Tvarkyti maršrutus",
       icon: <RouteIcon />,
     },
-    
   ];
 
   return (
@@ -149,14 +148,15 @@ const AdminDashboard: React.FC = () => {
   );
 };
 
-
 export const AdminPage: React.FC = () => {
   const location = useLocation();
-  const isDashboard = location.pathname === '/admin';
+  const isDashboard = location.pathname === "/admin";
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-extrabold mb-6 text-gray-900">Administratoriaus Panelė</h1>
+      <h1 className="text-3xl font-extrabold mb-6 text-gray-900">
+        Administratoriaus Panelė
+      </h1>
       {isDashboard && <AdminDashboard />}
       <div className="mt-6">
         <Outlet />

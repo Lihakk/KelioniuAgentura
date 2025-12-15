@@ -43,9 +43,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
 
     const result = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card,
-      },
+      payment_method: { card },
     });
 
     if (result.error) {
@@ -55,9 +53,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
     }
 
     if (result.paymentIntent?.status === "succeeded") {
-      await apiClient.post("/payment/mark-paid", {
+      await apiClient.post("/api/Payment/mark-paid", {
         reservationId,
       });
+
       navigate(`/reservation/${reservationId}`);
     }
   };
@@ -104,7 +103,7 @@ export const PaymentPage: React.FC = () => {
         const reservationData = await GetReservationById(Number(id));
         setReservation(reservationData);
 
-        const response = await apiClient.post("/Payment/create-intent", {
+        const response = await apiClient.post("/api/Payment/create-intent", {
           reservationId: reservationData.id,
         });
 
@@ -142,19 +141,21 @@ export const PaymentPage: React.FC = () => {
       <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col gap-6">
         <div>
           <h2 className="font-bold text-xl mb-2">
-            {reservation.reservationTrip.title}
+            {reservation.reservationTrip.name}
           </h2>
+
           <p>
             <span className="font-semibold">Keliautojų skaičius:</span>{" "}
             {reservation.travelers.length}
           </p>
+
           <p>
-            <span className="font-semibold">Bendra suma:</span> €
+            <span className="font-semibold">Bendra suma:</span> €{" "}
             {reservation.totalAmount}
           </p>
         </div>
 
-        <Elements stripe={stripePromise}>
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
           <PaymentForm
             clientSecret={clientSecret}
             reservationId={reservation.id}

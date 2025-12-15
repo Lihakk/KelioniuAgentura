@@ -66,4 +66,10 @@ public class ReservationController : ControllerBase
         await _reservationService.AddTraveler(traveler, cancellationToken);
         return Ok();
     }
+    [HttpDelete("Delete/{id}")]
+    public async Task<IActionResult> DeleteReservation(int id, CancellationToken cancellationToken)
+    {
+        await _reservationService.DeleteReservation(id, cancellationToken);
+        return Ok();
+    }
 }

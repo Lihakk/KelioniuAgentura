@@ -159,39 +159,34 @@ public class ReservationService : IReservationService
 
     public async Task CreateReservation(CreateReservationDto reservationDetails, int userId, CancellationToken cancellationToken)
     {
-        var travelers = new List<Traveler>();
-        
-        
-        foreach (var traveler in reservationDetails.Travelers)
-        {
-            travelers.Add(new Traveler
-            {
-                FirstName = traveler.FirstName,
-                LastName = traveler.LastName,
-                DocumentNumber = traveler.DocumentNumber,
-                BirthDate = traveler.BirthDate,
-            });
-        }
-        var tripPrice = await _context.Trips
-            .Where(t => t.Id == reservationDetails.TripId)
-            .Select(t => t.Price)
-            .FirstAsync(cancellationToken);
-        
-        if (tripPrice == default)
-        {
-            throw new Exception($"Trip with id {reservationDetails.TripId} does not exist.");
-        }
+        var trip = await _context.Trips
+            .FirstOrDefaultAsync(t => t.Id == reservationDetails.TripId, cancellationToken);
+
+        if (trip == null)
+            throw new Exception("Kelionė nerasta");
 
         var travelerCount = reservationDetails.Travelers.Count;
-        var totalAmount = tripPrice * travelerCount;
-        
+
+        if (trip.AvailableSpots < travelerCount)
+            throw new Exception("Nepakanka laisvų vietų šiai kelionei");
+
+        var travelers = reservationDetails.Travelers.Select(t => new Traveler
+        {
+            FirstName = t.FirstName,
+            LastName = t.LastName,
+            DocumentNumber = t.DocumentNumber,
+            BirthDate = t.BirthDate,
+        }).ToList();
+
+        var totalAmount = trip.Price * travelerCount;
+
         var reservation = new Reservation
         {
             Date = DateTime.Now,
             TotalAmount = totalAmount,
             Status = ReservationStatus.Created,
-            UserId = userId, 
-            TripId = reservationDetails.TripId,
+            UserId = userId,
+            TripId = trip.Id,
             Payment = new Payment
             {
                 Amount = totalAmount,
@@ -201,61 +196,126 @@ public class ReservationService : IReservationService
             },
             Travelers = travelers,
         };
-        
-        
+
+        trip.AvailableSpots -= travelerCount;
+
         _context.Reservations.Add(reservation);
         await _context.SaveChangesAsync(cancellationToken);
     }
 
     public async Task UpdateReservation(UpdateReservationDto updateReservation, CancellationToken cancellationToken)
     {
-        var reservation = await _context.Reservations.Include(r => r.Travelers)
+        var reservation = await _context.Reservations
+            .Include(r => r.Travelers)
             .Include(r => r.Payment)
             .Include(r => r.Trip)
             .FirstOrDefaultAsync(r => r.Id == updateReservation.Id, cancellationToken);
 
-        if (reservation is null)
-        {
-            throw new Exception($"Reservation with id {updateReservation.Id} does not exist.");
-        }
-        
+        if (reservation == null)
+            throw new Exception("Rezervacija nerasta");
+
+        var travelerCount = reservation.Travelers.Count;
+
+        reservation.TotalAmount = reservation.Trip.Price * travelerCount;
+        reservation.Payment.Amount = reservation.TotalAmount;
+
         reservation.Status = updateReservation.Status;
         reservation.Payment.Status = updateReservation.Payment.Status;
-         
+
         await _context.SaveChangesAsync(cancellationToken);
-        
     }
+
 
     public async Task AddTraveler(CreateTravelerDto traveler, CancellationToken cancellationToken)
     {
-        var reservationExists = await _context.Reservations
-            .AnyAsync(r => r.Id == traveler.ReservationId, cancellationToken);
+        var reservation = await _context.Reservations
+            .Include(r => r.Travelers)
+            .Include(r => r.Trip)
+            .Include(r => r.Payment)
+            .FirstOrDefaultAsync(r => r.Id == traveler.ReservationId, cancellationToken);
 
-        if (!reservationExists)
-            throw new KeyNotFoundException("Reservation not found.");
+        if (reservation == null)
+            throw new Exception("Rezervacija nerasta");
 
-        var newTraveler = new Traveler
+        if (reservation.Trip.AvailableSpots < 1)
+            throw new Exception("Nepakanka laisvų vietų");
+
+        reservation.Trip.AvailableSpots -= 1;
+
+        reservation.Travelers.Add(new Traveler
         {
             FirstName = traveler.FirstName,
             LastName = traveler.LastName,
             BirthDate = traveler.BirthDate,
-            DocumentNumber = traveler.DocumentNumber,
-            ReservationId = traveler.ReservationId,
-        };
+            DocumentNumber = traveler.DocumentNumber
+        });
 
-        _context.Travelers.Add(newTraveler);
+        reservation.TotalAmount = reservation.Trip.Price * reservation.Travelers.Count;
+        reservation.Payment.Amount = reservation.TotalAmount;
+
         await _context.SaveChangesAsync(cancellationToken);
     }
+
 
     public async Task RemoveTraveler(int travelerId, CancellationToken cancellationToken)
     {
-        var traveler = await _context.Travelers.FirstOrDefaultAsync(tr => tr.Id == travelerId, cancellationToken);
+        var traveler = await _context.Travelers
+            .Include(t => t.Reservation)
+            .ThenInclude(r => r.Trip)
+            .Include(t => t.Reservation)
+            .ThenInclude(r => r.Payment)
+            .FirstOrDefaultAsync(t => t.Id == travelerId, cancellationToken);
 
-        if (traveler is null)
-        {
-            throw new Exception($"Traveler with id {travelerId} does not exist.");
-        }
+        if (traveler == null)
+            throw new Exception("Keliautojas nerastas");
+
+        traveler.Reservation.Trip.AvailableSpots += 1;
+
         _context.Travelers.Remove(traveler);
+
+        var reservation = traveler.Reservation;
+        reservation.TotalAmount = reservation.Trip.Price * (reservation.Travelers.Count - 1);
+        reservation.Payment.Amount = reservation.TotalAmount;
+
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    private async Task RecalculateReservationPrice(int reservationId, CancellationToken cancellationToken)
+    {
+        var reservation = await _context.Reservations
+            .Include(r => r.Travelers)
+            .Include(r => r.Payment)
+            .Include(r => r.Trip)
+            .FirstAsync(r => r.Id == reservationId, cancellationToken);
+
+        var travelerCount = reservation.Travelers.Count;
+        var tripPrice = reservation.Trip.Price;
+
+        var newTotal = travelerCount * tripPrice;
+
+        reservation.TotalAmount = newTotal;
+        reservation.Payment.Amount = newTotal;
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+    public async Task DeleteReservation(int reservationId, CancellationToken cancellationToken)
+    {
+        var reservation = await _context.Reservations
+            .Include(r => r.Travelers)
+            .Include(r => r.Trip)
+            .FirstOrDefaultAsync(r => r.Id == reservationId, cancellationToken);
+
+        if (reservation == null)
+            throw new Exception("Rezervacija nerasta");
+
+        var travelerCount = reservation.Travelers.Count;
+        reservation.Trip.AvailableSpots += travelerCount;
+
+        _context.Reservations.Remove(reservation);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+
+
 }

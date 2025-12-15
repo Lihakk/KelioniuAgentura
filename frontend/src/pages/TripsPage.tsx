@@ -139,8 +139,8 @@ export const TripsPage: React.FC = () => {
                 className="w-full h-64 object-cover group-hover:opacity-80 transition-opacity"
                 onError={(e) => {
                   // Fallback if image fails to load
-                  (e.target as HTMLImageElement).src = 
-                    'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&auto=format&fit=crop';
+                  (e.target as HTMLImageElement).src =
+                    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&auto=format&fit=crop";
                 }}
               />
             </Link>
@@ -206,14 +206,14 @@ export const TripsPage: React.FC = () => {
                     />
                   </svg>
                 </Link>
-                 {role !== 'Administrator' && (
-                <Link
-                  to={`/rezervation/create`}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
-                >
-                  Rezervuoti
-                </Link>
-              )}
+                {role !== "Administrator" && role !== "guest" && (
+                  <Link
+                    to={`/reservation/create/${trip.id}`}
+                    className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
+                  >
+                    Rezervuoti
+                  </Link>
+                )}
               </div>
             </div>
           </div>

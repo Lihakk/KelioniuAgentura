@@ -115,4 +115,19 @@ public class UserController : ControllerBase
         
         return Ok(updatedUser);
     }
+    [HttpDelete("Delete")]
+    public async Task<IActionResult> DeleteAccount(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User ID claim missing.");
+
+        await _userService.DeleteUser(userId, cancellationToken);
+
+        Response.Cookies.Delete("jwt");
+
+        return Ok(new { message = "User account deleted" });
+    }
+
 }

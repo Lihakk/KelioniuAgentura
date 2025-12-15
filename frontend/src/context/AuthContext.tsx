@@ -39,7 +39,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = async () => {
     try {
-      await apiClient.post("/User/Logout");
+      await apiClient.post("api/User/Logout");
+    } finally {
+      setRole("guest");
+      setIsEmailConfirmed(false);
+      setIsAuthenticated(false);
+    }
+  };
+  const logoutForDelete = async () => {
+    try {
+      await apiClient.post("/api/User/Logout");
+    } catch {
     } finally {
       setRole("guest");
       setIsEmailConfirmed(false);

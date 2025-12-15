@@ -12,4 +12,6 @@ public interface IReservationService
         CancellationToken cancellationToken);
     Task AddTraveler(CreateTravelerDto traveler, CancellationToken cancellationToken);
     Task RemoveTraveler(int travelerId, CancellationToken cancellationToken);
+    Task DeleteReservation(int reservationId, CancellationToken cancellationToken);
+
 }

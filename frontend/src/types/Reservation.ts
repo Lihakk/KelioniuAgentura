@@ -11,7 +11,7 @@ export interface Reservation {
 
 export interface ReservationTrip {
   id: number;
-  title: string;
+  name: string;
   description: string;
   startDate: string;
   endDate: string;
@@ -44,6 +44,7 @@ export interface CreateTraveler {
   documentNumber: string;
   reservationId: number;
 }
+
 export interface ReservationCreation {
   tripId: number;
   travelers: CreateTraveler[];

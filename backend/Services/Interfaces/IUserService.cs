@@ -13,4 +13,7 @@ public interface IUserService
 
     Task<UserProfileDto> EditUserProfile(string userId, UserProfileDto userInfo,
         CancellationToken cancellationToken);
+    
+    Task DeleteUser(string userId, CancellationToken cancellationToken);
+
 }
